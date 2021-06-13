@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="漏洞版本：v1.1_build20200713XSS漏洞复现：局部过滤函数removexss，文件位置：www&#x2F;conn&#x2F;function.php函数代码：  12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364">
+<meta property="og:type" content="article">
+<meta property="og:title" content="某文章付费阅读系统代码审计-XSS">
+<meta property="og:url" content="http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="漏洞版本：v1.1_build20200713XSS漏洞复现：局部过滤函数removexss，文件位置：www&#x2F;conn&#x2F;function.php函数代码：  12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss1.png">
+<meta property="og:image" content="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss2.png">
+<meta property="og:image" content="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss3.png">
+<meta property="og:image" content="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss4.png">
+<meta property="article:published_time" content="2020-07-26T05:30:32.000Z">
+<meta property="article:modified_time" content="2020-08-19T08:05:25.316Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="渗透测试">
+<meta property="article:tag" content="XSS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss1.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>某文章付费阅读系统代码审计-XSS</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/08/08/Thinkphp5%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/07/17/%E6%8E%92%E6%9F%A5%E6%97%A5%E5%BF%97%E4%B9%8B%E5%8F%8D%E6%97%A5Hacker/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&text=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&is_video=false&description=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=某文章付费阅读系统代码审计-XSS&body=Check out this article: http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&name=某文章付费阅读系统代码审计-XSS&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&t=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        某文章付费阅读系统代码审计-XSS
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-07-26T05:30:32.000Z" itemprop="datePublished">2020-07-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/XSS/" rel="tag">XSS</a>, <a class="tag-link" href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">代码审计</a>, <a class="tag-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" rel="tag">渗透测试</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>漏洞版本：v1.1_build20200713<br><strong>XSS漏洞复现：</strong><br><strong>局部过滤函数removexss，文件位置：www/conn/function.php</strong><br>函数代码：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br></pre></td><td class="code"><pre><span class="line">function removexss($val) &#123;</span><br><span class="line">$val &#x3D; preg_replace ( &#39;&#x2F;([\x00-\x08\x0b-\x0c\x0e-\x19])&#x2F;&#39;, &#39;&#39;, $val );</span><br><span class="line"></span><br><span class="line">$search &#x3D; &#39;abcdefghijklmnopqrstuvwxyz&#39;;</span><br><span class="line">$search .&#x3D; &#39;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;;</span><br><span class="line">$search .&#x3D; &#39;1234567890!@#$%^&amp;*()&#39;;</span><br><span class="line">$search .&#x3D; &#39;~&#96;&quot;;:?+&#x2F;&#x3D;&#123;&#125;[]-_|\&#39;\\&#39;;</span><br><span class="line">for($i &#x3D; 0; $i &lt; strlen ( $search ); $i ++) &#123;</span><br><span class="line"></span><br><span class="line">$val &#x3D; preg_replace ( &#39;&#x2F;(&amp;#[xX]0&#123;0,8&#125;&#39; . dechex ( ord ( $search [$i] ) ) . &#39;;?)&#x2F;i&#39;, $search [$i], $val );</span><br><span class="line"></span><br><span class="line">$val &#x3D; preg_replace ( &#39;&#x2F;(&amp;#0&#123;0,8&#125;&#39; . ord ( $search [$i] ) . &#39;;?)&#x2F;&#39;, $search [$i], $val );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ra1 &#x3D; array (</span><br><span class="line">&#39;javascript&#39;,</span><br><span class="line">&#39;vbscript&#39;,</span><br><span class="line">&#39;expression&#39;,</span><br><span class="line">&#39;applet&#39;,</span><br><span class="line">&#39;meta&#39;,</span><br><span class="line">&#39;xml&#39;,</span><br><span class="line">&#39;blink&#39;,</span><br><span class="line">&#39;script&#39;,</span><br><span class="line">&#39;object&#39;,</span><br><span class="line">&#39;iframe&#39;,</span><br><span class="line">&#39;frame&#39;,</span><br><span class="line">&#39;frameset&#39;,</span><br><span class="line">&#39;ilayer&#39;,</span><br><span class="line">&#39;bgsound&#39;</span><br><span class="line">);</span><br><span class="line">$ra2 &#x3D; array (</span><br><span class="line">&#39;onabort&#39;,</span><br><span class="line">&#39;onactivate&#39;,</span><br><span class="line">&#39;onafterprint&#39;,</span><br><span class="line">&#39;onafterupdate&#39;,</span><br><span class="line">&#39;onbeforeactivate&#39;,</span><br><span class="line">&#39;onbeforecopy&#39;,</span><br><span class="line">&#39;onbeforecut&#39;,</span><br><span class="line">&#39;onbeforedeactivate&#39;,</span><br><span class="line">&#39;onbeforeeditfocus&#39;,</span><br><span class="line">&#39;onbeforepaste&#39;,</span><br><span class="line">&#39;onbeforeprint&#39;,</span><br><span class="line">&#39;onbeforeunload&#39;,</span><br><span class="line">&#39;onbeforeupdate&#39;,</span><br><span class="line">&#39;onbegin&#39;,</span><br><span class="line">&#39;onblur&#39;,</span><br><span class="line">&#39;onbounce&#39;,</span><br><span class="line">&#39;oncellchange&#39;,</span><br><span class="line">&#39;onchange&#39;,</span><br><span class="line">&#39;onclick&#39;,</span><br><span class="line">&#39;oncontextmenu&#39;,</span><br><span class="line">&#39;oncontrolselect&#39;,</span><br><span class="line">&#39;oncopy&#39;,</span><br><span class="line">&#39;oncut&#39;,</span><br><span class="line">&#39;ondataavailable&#39;,</span><br><span class="line">&#39;ondatasetchanged&#39;,</span><br><span class="line">&#39;ondatasetcomplete&#39;,</span><br><span class="line">&#39;ondblclick&#39;,</span><br><span class="line">&#39;ondeactivate&#39;,</span><br><span class="line">&#39;ondrag&#39;,</span><br><span class="line">&#39;ondragend&#39;,</span><br><span class="line">&#39;ondragenter&#39;,</span><br><span class="line">&#39;ondragleave&#39;,</span><br><span class="line">&#39;ondragover&#39;,</span><br><span class="line">&#39;ondragstart&#39;,</span><br><span class="line">&#39;ondrop&#39;,</span><br><span class="line">&#39;onerror&#39;,</span><br><span class="line">&#39;onerrorupdate&#39;,</span><br><span class="line">&#39;onfilterchange&#39;,</span><br><span class="line">&#39;onfinish&#39;,</span><br><span class="line">&#39;onfocus&#39;,</span><br><span class="line">&#39;onfocusin&#39;,</span><br><span class="line">&#39;onfocusout&#39;,</span><br><span class="line">&#39;onhelp&#39;,</span><br><span class="line">&#39;onkeydown&#39;,</span><br><span class="line">&#39;onkeypress&#39;,</span><br><span class="line">&#39;onkeyup&#39;,</span><br><span class="line">&#39;onlayoutcomplete&#39;,</span><br><span class="line">&#39;onload&#39;,</span><br><span class="line">&#39;onlosecapture&#39;,</span><br><span class="line">&#39;onmousedown&#39;,</span><br><span class="line">&#39;onmouseenter&#39;,</span><br><span class="line">&#39;onmouseleave&#39;,</span><br><span class="line">&#39;onmousemove&#39;,</span><br><span class="line">&#39;onmouseout&#39;,</span><br><span class="line">&#39;onmouseover&#39;,</span><br><span class="line">&#39;onmouseup&#39;,</span><br><span class="line">&#39;onmousewheel&#39;,</span><br><span class="line">&#39;onmove&#39;,</span><br><span class="line">&#39;onmoveend&#39;,</span><br><span class="line">&#39;onmovestart&#39;,</span><br><span class="line">&#39;onpaste&#39;,</span><br><span class="line">&#39;onpropertychange&#39;,</span><br><span class="line">&#39;onreadystatechange&#39;,</span><br><span class="line">&#39;onreset&#39;,</span><br><span class="line">&#39;onresize&#39;,</span><br><span class="line">&#39;onresizeend&#39;,</span><br><span class="line">&#39;onresizestart&#39;,</span><br><span class="line">&#39;onrowenter&#39;,</span><br><span class="line">&#39;onrowexit&#39;,</span><br><span class="line">&#39;onrowsdelete&#39;,</span><br><span class="line">&#39;onrowsinserted&#39;,</span><br><span class="line">&#39;onscroll&#39;,</span><br><span class="line">&#39;onselect&#39;,</span><br><span class="line">&#39;onselectionchange&#39;,</span><br><span class="line">&#39;onselectstart&#39;,</span><br><span class="line">&#39;onstart&#39;,</span><br><span class="line">&#39;onstop&#39;,</span><br><span class="line">&#39;onsubmit&#39;,</span><br><span class="line">&#39;ontoggle&#39;,</span><br><span class="line">&#39;onunload&#39;</span><br><span class="line">);</span><br><span class="line">$ra &#x3D; array_merge ( $ra1, $ra2 );</span><br><span class="line"></span><br><span class="line">$found &#x3D; true;</span><br><span class="line">while ( $found &#x3D;&#x3D; true ) &#123;</span><br><span class="line">$val_before &#x3D; $val;</span><br><span class="line">for($i &#x3D; 0; $i &lt; sizeof ( $ra ); $i ++) &#123;</span><br><span class="line">$pattern &#x3D; &#39;&#x2F;&#39;;</span><br><span class="line">for($j &#x3D; 0; $j &lt; strlen ( $ra [$i] ); $j ++) &#123;</span><br><span class="line">if ($j &gt; 0) &#123;</span><br><span class="line">$pattern .&#x3D; &#39;(&#39;;</span><br><span class="line">$pattern .&#x3D; &#39;(&amp;#[xX]0&#123;0,8&#125;([9ab]);)&#39;;</span><br><span class="line">$pattern .&#x3D; &#39;|&#39;;</span><br><span class="line">$pattern .&#x3D; &#39;|(&amp;#0&#123;0,8&#125;([9|10|13]);)&#39;;</span><br><span class="line">$pattern .&#x3D; &#39;)*&#39;;</span><br><span class="line">&#125;</span><br><span class="line">$pattern .&#x3D; $ra [$i] [$j];</span><br><span class="line">&#125;</span><br><span class="line">$pattern .&#x3D; &#39;&#x2F;i&#39;;</span><br><span class="line">$replacement &#x3D; substr ( $ra [$i], 0, 2 ) . &#39; &#39; . substr ( $ra [$i], 2 );</span><br><span class="line">$val &#x3D; preg_replace ( $pattern, $replacement, $val );</span><br><span class="line">if ($val_before &#x3D;&#x3D; $val) &#123;</span><br><span class="line"></span><br><span class="line">$found &#x3D; false;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">return $val;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该代码把经过removexss函数的字符串进行循环正则拼接替换，如果出现了黑名单$ra中的标签/属性，则把黑名单的内容进行前两个子字符与后面的字符用空格分隔<br><img src="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss1.png" alt="xss1"><br>$replacement变量把黑名单的内容进行空格分隔，如果149行的正则匹配到了黑名单中到标签/属性则进行替换。<br><img src="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss2.png" alt="xss"><br>代码走到147行循环到了script标签然后进行空格分隔，到149行代码到时候该正则会匹配到我们测试的<script>alert(1)</script>该payload进行替换。<br><img src="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss3.png" alt="xss"><br>匹配替换之后继续循环至黑名单的所有标签/属性后进入第二次while循环，此时$val_before变量的值重新赋值为经过替换的payload的值，经过两次的for循环之后再进入150行的if判断为true，跳出while循环，return $val的值。</p>
+<p>整个函数理清之后就是绕过该函数进行xss。</p>
+<p>这里使用的payload为onrepeat事件，当重复播放svg动画时会触发该事件。无需用户交互，我们只需要搭配svg标签即可。<br>payload：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;svg&gt;&lt;animate onrepeat&#x3D;alert(1) attributeName&#x3D;x dur&#x3D;1s repeatCount&#x3D;2 &#x2F;&gt;</span><br></pre></td></tr></table></figure>
+<p>漏洞复现：<br>全局搜索调用了该函数的地方然后逐一复现漏洞。<br><img src="https://exp1orer.github.io/img/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/xss4.png" alt="xss"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&text=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&is_video=false&description=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=某文章付费阅读系统代码审计-XSS&body=Check out this article: http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&title=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&name=某文章付费阅读系统代码审计-XSS&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/26/%E6%9F%90%E6%96%87%E7%AB%A0%E4%BB%98%E8%B4%B9%E9%98%85%E8%AF%BB%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-XSS/&t=某文章付费阅读系统代码审计-XSS" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Background源于塔总在P师傅的小蜜圈发的通达OA11.7的漏洞组合拳： 获取在线用户SESSION &#x3D;&gt; 获取Log路径 &#x3D;&gt; 读取redis配置文件 &#x3D;&gt; ssrf+redis写入webshell 任意文件读取漏洞文件位于：webroot&#x2F;ispirit&#x2F;im&#x2F;photo.php 首先引入了两个文件, auth.inc.php和utility_file.php 12re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="通达OA11.7漏洞集合">
+<meta property="og:url" content="http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="Background源于塔总在P师傅的小蜜圈发的通达OA11.7的漏洞组合拳： 获取在线用户SESSION &#x3D;&gt; 获取Log路径 &#x3D;&gt; 读取redis配置文件 &#x3D;&gt; ssrf+redis写入webshell 任意文件读取漏洞文件位于：webroot&#x2F;ispirit&#x2F;im&#x2F;photo.php 首先引入了两个文件, auth.inc.php和utility_file.php 12re">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp1y3g2yjcj31mu0u0k3s.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp24mr3ta1j321w0eiajw.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp3jzjwfikj31as0t64bo.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp24xwg58hj31py0bctaj.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp26z6u6jdj31000u0qr5.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp26zx7e8yj316q0emn52.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp2716onwhj31w40lc4bh.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp274b6tuvj31010u0tme.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp278k3e89j31l80os1kx.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp27kfbdybj31ko0sc441.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp2fbq6htgj31i80k6alo.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp2fno5h78j31g50u0ha3.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp3l9ogivwj30x80u04km.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp3lhd4rclj31md0u016h.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp3lit5ak9j31mo0u0gzd.jpg">
+<meta property="article:published_time" content="2021-03-30T17:15:08.000Z">
+<meta property="article:modified_time" content="2021-03-31T17:28:59.884Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="通达OA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gp1y3g2yjcj31mu0u0k3s.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>通达OA11.7漏洞集合</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2021/04/02/FastAdmin%E5%89%8D%E5%8F%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2021/03/08/%E5%88%9D%E8%AF%86FastJson/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&text=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&is_video=false&description=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=通达OA11.7漏洞集合&body=Check out this article: http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&name=通达OA11.7漏洞集合&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&t=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Background"><span class="toc-number">1.</span> <span class="toc-text">Background</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#任意文件读取"><span class="toc-number">2.</span> <span class="toc-text">任意文件读取</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SSRF-Redis写Webshell"><span class="toc-number">2.1.</span> <span class="toc-text">SSRF + Redis写Webshell</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#后台SQL注入"><span class="toc-number">3.</span> <span class="toc-text">后台SQL注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#order-by注入"><span class="toc-number">4.</span> <span class="toc-text">order by注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件上传"><span class="toc-number">5.</span> <span class="toc-text">文件上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        通达OA11.7漏洞集合
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-03-30T17:15:08.000Z" itemprop="datePublished">2021-03-31</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">代码审计</a>, <a class="tag-link" href="/tags/%E9%80%9A%E8%BE%BEOA/" rel="tag">通达OA</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h3><p>源于塔总在P师傅的小蜜圈发的通达OA11.7的漏洞组合拳：</p>
+<p><strong>获取在线用户SESSION =&gt; 获取Log路径 =&gt; 读取redis配置文件 =&gt; ssrf+redis写入webshell</strong></p>
+<h3 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h3><p>漏洞文件位于：<strong>webroot/ispirit/im/photo.php</strong></p>
+<p>首先引入了两个文件, <code>auth.inc.php</code>和<code>utility_file.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">require_once</span> <span class="string">"inc/auth.inc.php"</span>;</span><br><span class="line"><span class="keyword">include_once</span> <span class="string">"inc/utility_file.php"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>跟进auth.inc.php看看代码如何实现的认证。</p>
+<ul>
+<li>从GET或POST中获取PHPSESSID参数的值, 如果该值为字母a-z和0-9的组合且长度为20-32位则设置当前会话id为该值。</li>
+<li>如果请求头中包含referer, 但referer中不包含主机名的话提示目录访问限制并退出脚本执行。</li>
+<li>SESSION中没有LOGIN_USER_ID键或其值为空, SESSION中没有LOGIN_UID键或其值为空, 接着判断SESSION中如果包含SHARE_ID并且其值不为空则提示无查看权限并退出执行, 反之提示未登录并退出执行, 对应的代码如下。</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp1y3g2yjcj31mu0u0k3s.jpg" alt="image-20210330150606356"></p>
+<p>了解通达的朋友应该知道在 <code>common.inc.php</code>中会将<code>GPC</code>（GET, POST, COOKIE）的参数注册为变量, 这里有个小坑。在跟踪时发现代码好像有点问题, 将循环的参数值重复赋值给$s_key变量, 十分不解。最后在Google中搜索到 <code>@xq17</code>师傅的一篇文章后才发现是Zend解密的问题。 然后把这个文件又拿去重新解密了一遍。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp24mr3ta1j321w0eiajw.jpg" alt="image-20210330185219719"></p>
+<p>回到漏洞文件的代码中来, 在该文件中包含了 <code>inc/auth.inc.php</code>, 因此该漏洞的利用需要登录。再看if的条件需要满足 <code>UID</code>变量存在且大于0。前面说过会将GPC的参数注册为变量, 因此只需要在GPC任意一个未知中传递UID参数且值大于0即可。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp3jzjwfikj31as0t64bo.jpg" alt="image-20210330185937703"></p>
+<p>接着在代码93～99行处判断 <code>AVATAR_FILE</code>变量值的文件是否存在, 当文件存在时则使用 <code>readfile</code>函数直接输出该文件, 无任何防护措施。所以只需要构造AVATAR_FILE参数为任意文件路径就可以读取。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;192.168.0.106:8080&#x2F;&#x2F;ispirit&#x2F;im&#x2F;photo.php?AVATAR_FILE&#x3D;filepath&amp;UID&#x3D;1</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp24xwg58hj31py0bctaj.jpg" alt="image-20210330190303044"></p>
+<h4 id="SSRF-Redis写Webshell"><a href="#SSRF-Redis写Webshell" class="headerlink" title="SSRF + Redis写Webshell"></a>SSRF + Redis写Webshell</h4><p>漏洞文件位于： <strong>webroot/inc/weixinqy/class/weixinqy.media.funcs.php</strong></p>
+<p>在开头中引入了 <code>pda/auth.php</code>所以该漏洞依旧是需要登录的, 然后从GET中接收 <code>ATTACHMENTS</code>参数以 <code>,</code>号分割问数组, 对应代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">require_once</span> <span class="string">"pda/auth.php"</span>;</span><br><span class="line"><span class="keyword">include_once</span> <span class="string">"inc/utility_file.php"</span>;</span><br><span class="line">$result = <span class="keyword">array</span>();</span><br><span class="line">$PLATFORM = $_GET[<span class="string">"PLATFORM"</span>];</span><br><span class="line">$ATTACHMENT_ARR = explode(<span class="string">","</span>, td_trim($_GET[<span class="string">"ATTACHMENTS"</span>]));</span><br><span class="line">$appName = $_GET[<span class="string">"appName"</span>];</span><br></pre></td></tr></table></figure>
+
+<p>前面的两个条件在调用 <code>remote_download</code>函数时会调用 <code>WeiXinQYMedia#getMedia</code>方法, 会将参数的值拼接到 <code>base_url</code>属性中, 不满足条件。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp26z6u6jdj31000u0qr5.jpg" alt="image-20210330201327670"></p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp26zx7e8yj316q0emn52.jpg" alt="image-20210330201411185"></p>
+<p>而在 <code>$PLATFORM</code>等于 <code>dd</code>的if分支中调用的 <code>remote_download</code>方法是传递的原生的参数值。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp2716onwhj31w40lc4bh.jpg" alt="image-20210330201523801"></p>
+<p>在 <code>remote_download</code>函数中会实例化<code>Curl</code>类对象, 其就是一个封装curl函数库的一个类。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp274b6tuvj31010u0tme.jpg" alt="image-20210330201823670"></p>
+<p>在get方法中又通过自己封装的一些方法设置curl选项, 在封装的 <code>exec</code>方法中最终会调用 <code>curl_exec</code>函数。而整个过程也是没有任何过滤和防护措施, 所以导致ssrf。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp278k3e89j31l80os1kx.jpg" alt="image-20210330202226570"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;192.168.0.106:8080&#x2F;pda&#x2F;workflow&#x2F;img_download.php?PLATFORM&#x3D;dd&amp;ATTACHMENTS&#x3D;http:&#x2F;&#x2F;5ke3hl.dnslog.cn</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp27kfbdybj31ko0sc441.jpg" alt="image-20210330203353818"></p>
+<h3 id="后台SQL注入"><a href="#后台SQL注入" class="headerlink" title="后台SQL注入"></a>后台SQL注入</h3><p>漏洞文件：<strong>webroot/general/hr/manage/query/delete_cascade.php</strong></p>
+<p>开头的文件包含中会从 <code>inc/utility_file.php</code>包含到 =&gt; <code>common.inc.php</code>, 因此可以传递参数的方式注册变量, 此处因为将转义的单引号又替换为未转义的单引号而导致注入, 不过也需要绕过黑名单的限制。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp2fbq6htgj31i80k6alo.jpg" alt="image-20210331010218933"></p>
+<h3 id="order-by注入"><a href="#order-by注入" class="headerlink" title="order by注入"></a>order by注入</h3><p>漏洞文件：<strong>general/email/inbox/get_index_data.php</strong></p>
+<p>只需要关注这一行代码即可：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$email_array = get_email_data($orderby, $asc, $boxid, $email_fliter, $pagelimit, $timestamp, $curnum, $is_webmailbox, $is_main, $boxname, $list_view);</span><br></pre></td></tr></table></figure>
+
+<p>跟进到get_email_data函数中, 在代码339行处会将 <code>$FIELD</code>拼接到order by 中：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp2fno5h78j31g50u0ha3.jpg" alt="image-20210331011346886"></p>
+<h3 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h3><p>漏洞文件：<strong>webroot/general/hr/manage/staff_info/update.php</strong></p>
+<p>将文件的拓展名与 <code>$USER_ID</code>拼接后使用封装的 <code>td_copy</code>函数移动文件：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp3l9ogivwj30x80u04km.jpg" alt="image-20210401011329703"></p>
+<p>首先构造一个用于包含的log或任意非黑名单后缀的文件：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp3lhd4rclj31md0u016h.jpg" alt="image-20210401012053092"></p>
+<p>然后在上传 <code>.user.ini</code>包含这个文件：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp3lit5ak9j31mo0u0gzd.jpg" alt="image-20210401012217027"></p>
+<p>上传成功后访问该目录下的任意PHP文件都会在执行之前包含 <code>111.log</code>文件并执行其中代码。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://paper.seebug.org/1499/" target="_blank" rel="noopener">通达 OA 代码审计篇二 ：11.8 后台 Getshell</a></p>
+<p><a href="">代码审计#知识星球@努力学习C++的落魄*</a></p>
+<p><a href="">安全技能补完计划#知识星球@jayus</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Background"><span class="toc-number">1.</span> <span class="toc-text">Background</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#任意文件读取"><span class="toc-number">2.</span> <span class="toc-text">任意文件读取</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SSRF-Redis写Webshell"><span class="toc-number">2.1.</span> <span class="toc-text">SSRF + Redis写Webshell</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#后台SQL注入"><span class="toc-number">3.</span> <span class="toc-text">后台SQL注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#order-by注入"><span class="toc-number">4.</span> <span class="toc-text">order by注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件上传"><span class="toc-number">5.</span> <span class="toc-text">文件上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&text=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&is_video=false&description=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=通达OA11.7漏洞集合&body=Check out this article: http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&title=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&name=通达OA11.7漏洞集合&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/&t=通达OA11.7漏洞集合" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

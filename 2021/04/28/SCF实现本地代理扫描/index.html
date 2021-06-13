@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="SCFSCF全称（Serverless Cloud Function）即云函数，是腾讯云为企业和开发者们提供的无服务器执行环境，帮助您在无需购买和管理服务器的情况下运行代码。 您只需使用平台支持的语言编写核心代码并设置代码运行的条件，即可在腾讯云基础设施上弹性、安全地运行代码。 如何开发基于云函数的代理扫描？首先需要明白通过云函数扫描的原理即我们本地的扫描器通过云函数代理转发HTTP请求（事实上云">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SCF实现本地代理扫描">
+<meta property="og:url" content="http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="SCFSCF全称（Serverless Cloud Function）即云函数，是腾讯云为企业和开发者们提供的无服务器执行环境，帮助您在无需购买和管理服务器的情况下运行代码。 您只需使用平台支持的语言编写核心代码并设置代码运行的条件，即可在腾讯云基础设施上弹性、安全地运行代码。 如何开发基于云函数的代理扫描？首先需要明白通过云函数扫描的原理即我们本地的扫描器通过云函数代理转发HTTP请求（事实上云">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gpzfdq34t9j31bt0u07bt.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gpzga2urfrj31e20oykjl.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gpzh5qilucj31j70u0e83.jpg">
+<meta property="article:published_time" content="2021-04-28T06:41:41.000Z">
+<meta property="article:modified_time" content="2021-04-28T07:09:45.781Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="SCF云函数">
+<meta property="article:tag" content="扫描器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gpzfdq34t9j31bt0u07bt.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>SCF实现本地代理扫描</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2021/06/14/JNDI%E6%B3%A8%E5%85%A5%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2021/04/02/FastAdmin%E5%89%8D%E5%8F%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&text=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&is_video=false&description=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SCF实现本地代理扫描&body=Check out this article: http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&name=SCF实现本地代理扫描&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&t=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#SCF"><span class="toc-number">1.</span> <span class="toc-text">SCF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何开发基于云函数的代理扫描？"><span class="toc-number">2.</span> <span class="toc-text">如何开发基于云函数的代理扫描？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装-amp-使用-Mitmproxy"><span class="toc-number">3.</span> <span class="toc-text">安装 &amp; 使用 Mitmproxy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现效果"><span class="toc-number">4.</span> <span class="toc-text">实现效果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        SCF实现本地代理扫描
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-04-28T06:41:41.000Z" itemprop="datePublished">2021-04-28</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/SCF%E4%BA%91%E5%87%BD%E6%95%B0/" rel="tag">SCF云函数</a>, <a class="tag-link" href="/tags/%E6%89%AB%E6%8F%8F%E5%99%A8/" rel="tag">扫描器</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="SCF"><a href="#SCF" class="headerlink" title="SCF"></a>SCF</h3><p>SCF全称（Serverless Cloud Function）即云函数，是腾讯云为企业和开发者们提供的无服务器执行环境，帮助您在无需购买和管理服务器的情况下运行代码。 您只需使用平台支持的语言编写核心代码并设置代码运行的条件，即可在腾讯云基础设施上弹性、安全地运行代码。</p>
+<h3 id="如何开发基于云函数的代理扫描？"><a href="#如何开发基于云函数的代理扫描？" class="headerlink" title="如何开发基于云函数的代理扫描？"></a>如何开发基于云函数的代理扫描？</h3><p>首先需要明白通过云函数扫描的原理即我们本地的扫描器通过云函数代理转发HTTP请求（事实上云函数上也是可以直接run一些轻型扫描器）。将我们本地扫描器的请求通过MITMPROXY转发给云端函数由它发起真正的请求即可实现 <code>本地 -&gt; 云 -&gt; 服务器</code> 这一过程。</p>
+<h3 id="安装-amp-使用-Mitmproxy"><a href="#安装-amp-使用-Mitmproxy" class="headerlink" title="安装 &amp; 使用 Mitmproxy"></a>安装 &amp; 使用 Mitmproxy</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install mitmproxy</span><br></pre></td></tr></table></figure>
+
+<p>通过pip可以直接安装mitmproxy并通过如下命令启动：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mitmproxy -p 8080</span><br></pre></td></tr></table></figure>
+
+<p>开启mitmproxy后你可以设置监听的端口为HTTP代理并安装证书（否则你将无法转发HTTPS流量）</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gpzfdq34t9j31bt0u07bt.jpg" alt="image-20210428140750684"></p>
+<p>接下来我们需要编写一个代理客户端脚本，不熟悉mitmproxy脚本开发的师傅可移步官方文档及<a href="https://github.com/mitmproxy/mitmproxy/tree/main/examples/addons" target="_blank" rel="noopener">Github示例</a>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> base64 <span class="keyword">import</span> b64encode, b64decode</span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urlparse</span><br><span class="line"><span class="keyword">from</span> mitmproxy <span class="keyword">import</span> ctx</span><br><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> choice</span><br><span class="line"><span class="keyword">import</span> mitmproxy.http</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">TOKEN = <span class="string">'zz123000'</span> <span class="comment"># SCF认证令牌, 可自定义</span></span><br><span class="line">SERVER_URL = [] <span class="comment"># 云函数API网关触发器URL</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Proxy</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 代理后的请求会经过该方法调用</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">request</span><span class="params">(self, flow : mitmproxy.http.HTTPFlow)</span>:</span></span><br><span class="line">        <span class="comment"># 原始请求对象</span></span><br><span class="line">        request = flow.request</span><br><span class="line">        <span class="comment"># 封装请求数据</span></span><br><span class="line">        datas = &#123;</span><br><span class="line">            <span class="string">'method'</span>: request.method,</span><br><span class="line">            <span class="string">'url'</span>: request.pretty_url,</span><br><span class="line">            <span class="string">'headers'</span>: dict(request.headers),</span><br><span class="line">            <span class="string">'params'</span>: dict(request.query),</span><br><span class="line">            <span class="string">'cookies'</span>: dict(request.cookies),</span><br><span class="line">          	 <span class="comment"># 将原始数据内容（即POST请求体）进行base64编码</span></span><br><span class="line">            <span class="string">'data'</span>: b64encode(request.raw_content).decode()</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment"># ctx.log.info(json.dumps(datas))</span></span><br><span class="line">        <span class="comment"># 每次随机挑选一个SCF转发请求</span></span><br><span class="line">        PROXY_URL = choice(SERVER_URL)</span><br><span class="line">				<span class="comment"># 封装新的请求对象</span></span><br><span class="line">        flow.request = flow.request.make(</span><br><span class="line">            method = <span class="string">'POST'</span>,</span><br><span class="line">            url = PROXY_URL,</span><br><span class="line">          	<span class="comment"># 字典转为json发送</span></span><br><span class="line">            content = json.dumps(datas),</span><br><span class="line">            headers = &#123;</span><br><span class="line">                <span class="string">'Host'</span>: urlparse(PROXY_URL).netloc,</span><br><span class="line">                <span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36'</span>,</span><br><span class="line">              	 <span class="comment"># 请求头中添加令牌认证</span></span><br><span class="line">                <span class="string">'Token'</span>: TOKEN</span><br><span class="line">            &#125;</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">  	<span class="comment"># SCF返回的响应内容会经过该方法调用</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">response</span><span class="params">(self, flow : mitmproxy.http.HTTPFlow)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">          	<span class="comment"># SCF返回200状态码表示请求成功</span></span><br><span class="line">            <span class="keyword">if</span> flow.response.status_code == <span class="number">200</span>:</span><br><span class="line">              	<span class="comment"># 取出SCF请求返回的响应内容</span></span><br><span class="line">                datas = flow.response.content</span><br><span class="line">                datas = json.loads(b64decode(datas).decode())</span><br><span class="line">                <span class="comment"># 封装响应对象</span></span><br><span class="line">                res = flow.response.make(</span><br><span class="line">                    status_code = datas[<span class="string">'status_code'</span>],</span><br><span class="line">                    content = datas[<span class="string">'content'</span>],</span><br><span class="line">                    headers = datas[<span class="string">'headers'</span>]</span><br><span class="line">                )</span><br><span class="line">                flow.response = res</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                ctx.log.info(flow.response.status_code)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            print(e)</span><br><span class="line"></span><br><span class="line">addons = [</span><br><span class="line">    Proxy()</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>如上就是使用SCF代理所需的客户端脚本, 将请求数据包的内容重新封装后发往SCF即可，接着我们需要编写SCF服务端脚本, 来解析数据内容并重新封装请求：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf8 -*-</span></span><br><span class="line"><span class="keyword">from</span> base64 <span class="keyword">import</span> b64decode, b64encode</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">SCF_TOKEN = <span class="string">"zz123000"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 认证失败返回提示信息</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">authorization</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">"isBase64Encoded"</span>: <span class="literal">False</span>,</span><br><span class="line">        <span class="string">"statusCode"</span>: <span class="number">401</span>,</span><br><span class="line">        <span class="string">"headers"</span>: &#123;&#125;,</span><br><span class="line">        <span class="string">"body"</span>: <span class="string">"Please provide correct Token"</span>,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main_handler</span><span class="params">(event : dict, context : dict)</span>:</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">      	<span class="comment"># 请求头中获取令牌进行认证</span></span><br><span class="line">        token = event[<span class="string">'headers'</span>][<span class="string">'Token'</span>]</span><br><span class="line">        <span class="keyword">if</span> token != SCF_TOKEN:</span><br><span class="line">            <span class="keyword">return</span> authorization()</span><br><span class="line">    <span class="keyword">except</span> KeyError:</span><br><span class="line">      	<span class="comment"># 认证失败返回401</span></span><br><span class="line">        <span class="keyword">return</span> authorization()</span><br><span class="line">    <span class="comment"># 获取封装的请求数据</span></span><br><span class="line">    data = event[<span class="string">"body"</span>]</span><br><span class="line">    data = json.loads(data)</span><br><span class="line">    data[<span class="string">'data'</span>] = b64decode(data[<span class="string">'data'</span>]).decode()</span><br><span class="line">    data.pop(list(data.keys())[<span class="number">-1</span>])</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">      	<span class="comment"># 发送请求</span></span><br><span class="line">        res = requests.request(**data, verify=<span class="literal">False</span>)</span><br><span class="line">        text = &#123;</span><br><span class="line">            <span class="string">'status_code'</span>: res.status_code,</span><br><span class="line">            <span class="string">'headers'</span>: dict(res.headers),</span><br><span class="line">            <span class="string">'content'</span>: res.text</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            <span class="string">'isBase64Encoded'</span>: <span class="literal">False</span>,</span><br><span class="line">            <span class="string">'statusCode'</span>: <span class="number">200</span>,</span><br><span class="line">            <span class="string">'headers'</span>: &#123;&#125;,</span><br><span class="line">          	 <span class="comment"># 返回响应内容</span></span><br><span class="line">            <span class="string">'body'</span>: b64encode(json.dumps(text).encode(<span class="string">'utf-8'</span>)).decode()</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">except</span> (requests.exceptions.ConnectionError, Exception) <span class="keyword">as</span> err:</span><br><span class="line">        error = str(err)</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            <span class="string">'isBase64Encoded'</span>: <span class="literal">False</span>,</span><br><span class="line">            <span class="string">'statusCode'</span>: <span class="number">408</span>,</span><br><span class="line">            <span class="string">'headers'</span>: &#123;&#125;,</span><br><span class="line">          	 <span class="comment"># 请求失败返回异常信息</span></span><br><span class="line">            <span class="string">'body'</span>: b64encode(json.dumps(error).encode(<span class="string">'utf-8'</span>)).decode()</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在编写SCF脚本时需要注意, 首先需要从请求体中取出封装好的数据包, 将请求体的数据进行base64解码并转为字符串, 然后使用requests模块的request方法将 data 变量作为关键字参数传入。</p>
+<p><strong>踩坑</strong></p>
+<p>在将本地封装的请求数据转发至SCF时发现 <code>mitmproxy</code>自动在请求体中添加了一个随机参数, 暂时不知道是什么原因, 期待解答, 这里简单粗暴的做法就是在SCF中将最后一个参数移除。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gpzga2urfrj31e20oykjl.jpg" alt="image-20210428143858558"></p>
+<h3 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h3><p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gpzh5qilucj31j70u0e83.jpg" alt="image-20210428150923350"></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://github.com/shimmeris/SCFProxy/tree/main/HTTP" target="_blank" rel="noopener">SCFProxy</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#SCF"><span class="toc-number">1.</span> <span class="toc-text">SCF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何开发基于云函数的代理扫描？"><span class="toc-number">2.</span> <span class="toc-text">如何开发基于云函数的代理扫描？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装-amp-使用-Mitmproxy"><span class="toc-number">3.</span> <span class="toc-text">安装 &amp; 使用 Mitmproxy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现效果"><span class="toc-number">4.</span> <span class="toc-text">实现效果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&text=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&is_video=false&description=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SCF实现本地代理扫描&body=Check out this article: http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&title=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&name=SCF实现本地代理扫描&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/04/28/SCF%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86%E6%89%AB%E6%8F%8F/&t=SCF实现本地代理扫描" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

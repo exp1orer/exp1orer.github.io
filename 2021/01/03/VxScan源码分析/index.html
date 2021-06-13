@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="项目信息 Author：al0ne GitHub：传送门  目录结构 .├── LICENSE        Apache开源许可证2.0├── README.md        英文文档├── README.zh-CN.md        中文文档├── Vxscan.py        主程序├── analyzer.py├── data│   ├── GeoLite2-ASN.mmdb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VxScan源码分析">
+<meta property="og:url" content="http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="项目信息 Author：al0ne GitHub：传送门  目录结构 .├── LICENSE        Apache开源许可证2.0├── README.md        英文文档├── README.zh-CN.md        中文文档├── Vxscan.py        主程序├── analyzer.py├── data│   ├── GeoLite2-ASN.mmdb">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm50dtuiuhj30zk076t9v.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gmam5cfeiqj30wy0f440h.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm50tgeegxj30w603kmxq.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gmamdnd4rij318i0jsdjj.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm51hh3c4gj31bg0m8gs2.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gmamg8gtoqj315g0he0vg.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmffen4pb9j30ug02gglw.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm8bs784ngj30n807a0to.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm8ddrve23j30r0072mxs.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm99714ex0j30ya0u0thp.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm99bp8a1qj30yw0qytdj.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm99eolz4mj30u00y3grp.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm99fo49byj31830u013z.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmfff1and5j30vv0u0n4c.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9eq455mij30u00xcaee.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9fqoyp7aj30u00v5tf4.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9frybt37j313y0e0tbf.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9lj8lnx7j311a0f277g.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmfffg9167j31130u010x.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9twdme6gj30xf0u0qap.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9u8iva9wj30u40iitb4.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gmalcvgasij317q0ps0yf.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmfffnnwxnj30yk09a75m.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gmalrgza9oj316i0fagoi.jpg">
+<meta property="article:published_time" content="2021-01-03T08:50:29.000Z">
+<meta property="article:modified_time" content="2021-01-07T12:58:03.167Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="扫描器">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gm50dtuiuhj30zk076t9v.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>VxScan源码分析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2021/01/05/ysoserial%E4%B9%8BURLDNS-P1/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/12/10/Bash-Vino0o0o/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&text=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&is_video=false&description=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=VxScan源码分析&body=Check out this article: http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&name=VxScan源码分析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&t=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#项目信息"><span class="toc-number">1.</span> <span class="toc-text">项目信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#目录结构"><span class="toc-number">2.</span> <span class="toc-text">目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码分析"><span class="toc-number">3.</span> <span class="toc-text">源码分析</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        VxScan源码分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-01-03T08:50:29.000Z" itemprop="datePublished">2021-01-03</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Python/" rel="tag">Python</a>, <a class="tag-link" href="/tags/%E6%89%AB%E6%8F%8F%E5%99%A8/" rel="tag">扫描器</a>, <a class="tag-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="项目信息"><a href="#项目信息" class="headerlink" title="项目信息"></a>项目信息</h3><blockquote>
+<p>Author：al0ne</p>
+<p>GitHub：<a href="https://github.com/al0ne/Vxscan" target="_blank" rel="noopener">传送门</a></p>
+</blockquote>
+<h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><blockquote>
+<p>.<br>├── LICENSE        Apache开源许可证2.0<br>├── README.md        英文文档<br>├── README.zh-CN.md        中文文档<br>├── Vxscan.py        主程序<br>├── analyzer.py<br>├── data<br>│   ├── GeoLite2-ASN.mmdb        geoip数据库<br>│   ├── apps.json        应用指纹<br>│   ├── apps.txt        应用指纹<br>│   ├── password.txt<br>│   └── path<br>├── doc<br>│   ├── logo.jpg<br>│   ├── logo1.jpg<br>│   └── logo2.jpg<br>├── lib<br>│   ├── Requests.py        自封装请求对象<br>│   ├── bcolors.py        字体颜色<br>│   ├── cli_output.py        客户端信息输出<br>│   ├── common.py        公共函数<br>│   ├── iscdn.py        判断CDN<br>│   ├── options.py        获取命令行参数任务调度<br>│   ├── random_header.py        随机UA<br>│   ├── settings.py        全局配置<br>│   ├── sqldb.py<br>│   ├── url.py        解析URL及主机<br>│   ├── verify.py<br>│   ├── vuln.py<br>│   ├── waf.py        WAF匹配<br>│   ├── web_info.py<br>│   └── whiteip.py        白名单IP<br>├── plugins<br>│   ├── ActiveReconnaissance<br>│   ├── InformationGathering<br>│   ├── PassiveReconnaissance<br>│   └── Scanning<br>├── report<br>│   ├── bootstrap.min.css<br>│   ├── en.js<br>│   ├── fonts<br>│   ├── index.css<br>│   ├── index.js<br>│   ├── report.htm<br>│   └── vue.min.js<br>├── report.py<br>├── requirements.txt<br>└── script<br>    ├── Weblogic_CVE_2017_10271_RCE.py<br>    ├── apache_struts_all.py<br>    ├── django_urljump.py<br>    ├── docker_unauthorized_access.py<br>    ├── find_admin.py<br>    ├── fingerprint.py<br>    ├── ftp_anonymous.py<br>    ├── get_title.py<br>    ├── http_put.py<br>    ├── jboss_jmx_console.py<br>    ├── leaks.py<br>    ├── memcached_unauthorized_access.py<br>    ├── mongodb_unauthorized_access.py<br>    ├── phpinfo.py<br>    ├── pulse_cve_2019_11510.py<br>    ├── redis_unauthorized_access.py<br>    ├── rsync_unauthorized_access.py<br>    ├── solr_rce_via_velocity.py<br>    ├── solr_unauthorized_access.py<br>    ├── thinkphp5_rce_1.py<br>    ├── thinkphp_5_0_23_rce.py<br>    ├── zabbix_jsrpc_sqli.py<br>    └── zookeeper_unauthorized_access.py</p>
+</blockquote>
+<p>项目路径：/Tools/pentest/Vxscan</p>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>本次使用Pycharm分析此项目, 进入程序主文件<strong>Vxscan.py</strong>, 主程序的13～18行判断当前目录是否存在error.log日志文件并删除。如果Python大版本小于3或小版本小于6则不予运行程序使用sys.exit函数退出执行。</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm50dtuiuhj30zk076t9v.jpg" alt="image-20201229204101268"></p>
+<p>配置日志文件名和等级, 只记录ERROR等级的日志。使用try/except执行banner和options函数。</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmam5cfeiqj30wy0f440h.jpg" alt="image-20210103170153797"></p>
+<p>均位于<strong>Vxscan/lib</strong>目录下。跟进函数的执行。</p>
+<p><strong>/Vxscan/lib/cli_output.py</strong></p>
+<p>使用pyfiglet模块的figlet_format函数获取Vxscan字符串的ASCII图形字符。而后输出时加上了颜色</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm50tgeegxj30w603kmxq.jpg" alt="image-20201229205604298"></p>
+<p><strong>/Vxscan/lib/options.py</strong></p>
+<p>使用argparse模块获取命令行参数, 如运行程序时未指定保存文件名则为result 。如果指定了-i参数则IP扫描调用<code>inet</code>函数。</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmamdnd4rij318i0jsdjj.jpg" alt="image-20210103170953213"></p>
+<p>这里用的是url扫描, 调用start_out函数传入url, <strong>Vxscan/lib/cli_output.py</strong> </p>
+<p>标准输出开始信息</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm51hh3c4gj31bg0m8gs2.jpg" alt="image-20201229211908772"></p>
+<p>回到主程序继续向下运行, 初始化ActiveCheck类后调用pool方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ActiveCheck([args.url]).pool():</span><br><span class="line">    start(args.url, dbname)</span><br></pre></td></tr></table></figure>
+
+<p>pool方法使用concurrent.futures模块的ThreadPoolExecutor函数获取一个线程池并设置最大值为20, 而后通过字典推导式提交任务给线程池执行, 返回的结果赋值给result变量。循环as_completed方法获取任务的返回结果。</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmamg8gtoqj315g0he0vg.jpg" alt="image-20210103171222603"></p>
+<p>跟进提交到线程池执行的方法代码块。check方法代码篇幅过长, 故此出只总结一下该函数的用途：</p>
+<ul>
+<li>解析URL获取Host</li>
+<li>verify_country方法验证国家（默认关闭）</li>
+<li>Host为IP时调用WhiteIP类checkip方法, 使用二分查找检查是否为境外IP</li>
+<li>根据操作系统判断IP存活：Windows使用Ping命令, 其余则使用nmap模块扫描</li>
+</ul>
+<p>执行完pool函数后继续回到<strong>lib/options.py</strong>的第六十行代码, 调用<strong>lib/common.py</strong>d的start函数, 传入了url与数据库文件名。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmffen4pb9j30ug02gglw.jpg" alt="image-20210101172629172"></p>
+<p>start函数调用<strong>lib/url.py</strong>的parse_ip函数通过dns.resolver模块获取A记录的解析IP。再调用<strong>lib/verify.py</strong>的verify_https函数验证url是否为http或https。并跟随302获取跳转后的地址</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm8bs784ngj30n807a0to.jpg" alt="image-20210101173208758"></p>
+<p>如果url可访问则isopen为true, 调用<strong>lib/web_info.py</strong>的web_info函数获取服务器信息, 应用, 标题</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm8ddrve23j30r0072mxs.jpg" alt="image-20210101182729619"></p>
+<p>web_info函数代码如下, 下面再跟进函数分析其是如何实现的</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm99714ex0j30ya0u0thp.jpg" alt="image-20210102124810178"></p>
+<p>首先是geoip函数, 用于获取IP地址的真实物理位置, <strong>plugins/InformationGathering/geoip.py</strong>的geoip函数。其内部是通过geoip2模块的免费数据库获取IP的中文地理位置</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm99bp8a1qj30yw0qytdj.jpg" alt="image-20210102125238925"></p>
+<p>位于<strong>plugins/ActiveReconnaissance/check_waf.py</strong>的checkwaf函数：</p>
+<p>这块代码比较简单, 就是通过发送Payload请求的Response Header的信息到规则库去匹配是否命中。</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm99eolz4mj30u00y3grp.jpg" alt="image-20210102125530484"></p>
+<p>WAF规则：</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm99fo49byj31830u013z.jpg" alt="image-20210102125626483"></p>
+<p>回到获取页面信息的地方, <strong>plugins/PassiveReconnaissance/wappalyzer.py</strong>的WebPage类;</p>
+<p>__init__方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmfff1and5j30vv0u0n4c.jpg" alt="image-20210102154956031"></p>
+<p>Wappalyzer类的初始化方法获取data/apps.json的数据转为字典, 将字典中apps键的value赋值给self.apps属性, 然后循环调用_prepare_app方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9eq455mij30u00xcaee.jpg" alt="image-20210102155930888"></p>
+<p>_prepare_app方法用作循环传递的app变量, 其为一个字典, 通过循环判断是否存在某个key, 若存在但不为列表/字典则重新定义为列表/字典, 对不存在的key赋空列表/字典, 并通过_prepare_pattern方法获取用于正则匹配的pattern对象。</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9fqoyp7aj30u00v5tf4.jpg" alt="image-20210102163437152"></p>
+<p>_prepare_pattern方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9frybt37j313y0e0tbf.jpg" alt="image-20210102163552787"></p>
+<p>wappalyzer对象的初始化工作到此结束, 回到self.apps = wappalyzer.analyze()</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9lj8lnx7j311a0f277g.jpg" alt="image-20210102195505192"></p>
+<p>回到<strong>lib/common.py</strong>的start函数33行向下执行, 判断其是否CDN进行端口扫描, 跟进<strong>plugins/Scanning/port_scan.py</strong>分析如何实现端口扫描：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmfffg9167j31130u010x.jpg" alt="image-20210103002655313"></p>
+<p>socket_scan方法使用socket套接字进行TCP握手连接, 如开放端口大于30个则不予继续扫描。针对开放端口使用regex方法进行正则服务识别。</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9twdme6gj30xf0u0qap.jpg" alt="image-20210103004430977"></p>
+<p>端口扫描完毕后继续回到start函数进行POC扫描与目录扫描（爬虫项默认False 暂跳过）：</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gm9u8iva9wj30u40iitb4.jpg" alt="image-20210103005611056"></p>
+<p>跟进Vuln类的run方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmalcvgasij317q0ps0yf.jpg" alt="image-20210103163430144"></p>
+<p>vuln方法取出脚本的check函数调用后追加到self.out列表。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmfffnnwxnj30yk09a75m.jpg" alt="image-20210103163923581"></p>
+<p>目录扫描作者用得到技术栈是<strong>uvloop + asyncio + aiohttp **实现的异步扫描, 但个人认为Python的目录扫描<code>dirsearch</code>已经做得很好了。并且笔者目前只接触过</strong>asyncio + aiohttp**, 还未使用过uvloop。这部分内容也许会等到我有机会接触<code>dirsearch</code>的源码分析再做吧。（当然短时间内是不可能了。）</p>
+<hr>
+<p>最后gener函数从数据库取出扫描结果后生成HTML报告：</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmalrgza9oj316i0fagoi.jpg" alt="image-20210103164834790"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#项目信息"><span class="toc-number">1.</span> <span class="toc-text">项目信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#目录结构"><span class="toc-number">2.</span> <span class="toc-text">目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码分析"><span class="toc-number">3.</span> <span class="toc-text">源码分析</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&text=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&is_video=false&description=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=VxScan源码分析&body=Check out this article: http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&title=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&name=VxScan源码分析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/01/03/VxScan%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/&t=VxScan源码分析" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

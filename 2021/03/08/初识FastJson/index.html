@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="BackgroundFastJson提供了toJsonString和parseObject方法可用于将一个JavaBean转换为Json数据, 或将Json数据还原为JavaBean对象。 FastJson Version：1.2.24 12345678910111213141516&lt;!-- pom.xml --&gt;&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识FastJson">
+<meta property="og:url" content="http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="BackgroundFastJson提供了toJsonString和parseObject方法可用于将一个JavaBean转换为Json数据, 或将Json数据还原为JavaBean对象。 FastJson Version：1.2.24 12345678910111213141516&lt;!-- pom.xml --&gt;&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1go8ubiatwxj31fy0u0wmr.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1go8ufcfrnlj314r0u0tgg.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1go90s7tyu6j314804o0tm.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1go90u9e9zoj30pi03sgm3.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1go91yid764j31440hiwhp.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1go921od0lej31i40to442.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1go92c0kq4wj31rq0madic.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixdmrm4j31do0bq0uk.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixjbz5xj31qu0k8jvy.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixmkey0j31va0amdiu.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixpdevuj31yg0qyq9j.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixslqkcj31e80ne42m.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixvvteuj325o04uwg7.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixyp9ixj30u00vd10h.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1gociy1yxe5j31d00u0gtr.jpg">
+<meta property="article:published_time" content="2021-03-08T07:26:35.000Z">
+<meta property="article:modified_time" content="2021-03-08T07:27:39.262Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="反序列化">
+<meta property="article:tag" content="FastJson">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008eGmZEgy1go8ubiatwxj31fy0u0wmr.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>初识FastJson</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2021/03/31/%E9%80%9A%E8%BE%BEOA11-7%E6%BC%8F%E6%B4%9E%E9%9B%86%E5%90%88/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2021/03/03/%E9%80%9A%E8%BE%BEOA-V11-7%E8%8E%B7%E5%8F%96%E5%9C%A8%E7%BA%BF%E7%94%A8%E6%88%B7Session/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&text=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&is_video=false&description=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=初识FastJson&body=Check out this article: http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&name=初识FastJson&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&t=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Background"><span class="toc-number">1.</span> <span class="toc-text">Background</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-Bean序列化Json"><span class="toc-number">2.</span> <span class="toc-text">Java Bean序列化Json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#探测FastJson"><span class="toc-number">3.</span> <span class="toc-text">探测FastJson</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        初识FastJson
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-03-08T07:26:35.000Z" itemprop="datePublished">2021-03-08</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/FastJson/" rel="tag">FastJson</a>, <a class="tag-link" href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h3><p>FastJson提供了toJsonString和parseObject方法可用于将一个JavaBean转换为Json数据, 或将Json数据还原为JavaBean对象。</p>
+<p>FastJson Version：1.2.24</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- pom.xml --&gt;</span></span><br><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.24<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Java-Bean序列化Json"><a href="#Java-Bean序列化Json" class="headerlink" title="Java Bean序列化Json"></a>Java Bean序列化Json</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FastJsonLearning</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User(<span class="string">"Search?=Null"</span>, <span class="number">19</span>);</span><br><span class="line">        String user_json = JSON.toJSONString(user);</span><br><span class="line">        System.out.println(user_json);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> age;</span><br><span class="line"></span><br><span class="line">    User (String name, <span class="keyword">int</span> age) &#123;</span><br><span class="line">        System.out.println(<span class="string">"User Constructor Called."</span>);</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"getName Called."</span>);</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"setName Called."</span>);</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"getAge Called."</span>);</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"setAge Called."</span>);</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<blockquote>
+<p>{“age”:19,”name”:”Search?=Null”}</p>
+</blockquote>
+<p>其在序列化对象为Json时会调用Bean对象的get方法（构造方法是实例化对象时调用的, 非序列化所调用）：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1go8ubiatwxj31fy0u0wmr.jpg" alt="image-20210305105409656"></p>
+<p>相反, 在将Json转换为Java对象时也会调用其set方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1go8ufcfrnlj314r0u0tgg.jpg" alt="image-20210305105750608"></p>
+<h3 id="探测FastJson"><a href="#探测FastJson" class="headerlink" title="探测FastJson"></a>探测FastJson</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;java.net.InetAddress&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用如上Payload当dnslog收到请求时则证明后端使用了FastJson, 为何该Payload能够发起DNS请求。跟随本文从<code>parseObject</code>开始分析。</p>
+<p><strong>com.alibaba.fastjson.JSON#parseObject</strong></p>
+<p>接收json数据调用parse方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1go90s7tyu6j314804o0tm.jpg" alt="image-20210305143746340"></p>
+<p>调用parse方法传入json数据和DEFAULT_PARSE_FEATURE（989）：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1go90u9e9zoj30pi03sgm3.jpg" alt="image-20210305143946463"></p>
+<p>实例化<code>com.alibaba.fastjson.DefaultJSONParser</code>对象时其会判断JSON数据的第一个是否为<code>{</code>还是<code>[</code>, 根据不同结果赋值token, 然后调用<strong>DefaultJSONParser#parse</strong></p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1go91yid764j31440hiwhp.jpg" alt="image-20210305151827008"></p>
+<p>进入case 12的分支实例化JSONObject对象后调用parseObject方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1go921od0lej31i40to442.jpg" alt="image-20210305152130557"></p>
+<p>在parseObject中的while循环所谓又长又臭（足足400余行代码）, 遂只能一行一行琢磨该循环中都做了哪些事。循环的第一行代码便是调用skipWhitespace方法, 在该方法中会判断字符是否为空或换行符等, 因此在JSON数据中加入空格和换行符或许可以规避WAF的检测并正常解析：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1go92c0kq4wj31rq0madic.jpg" alt="image-20210305153126409"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 如下两种形式均可解析发起DNS请求</span><br><span class="line">&#123;&quot;@type&quot;:&quot;java.net.InetAddress&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;</span><br><span class="line">&#123;\r\n&quot;@type&quot;:&#x2F;**&#x2F;&quot;java.net.InetAddress&quot;,&quot;val&quot;:&#x2F;**&#x2F;&quot;dnslog&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>回到循环中继续向下看代码, 如果<code>AllowArbitaryCommas</code>开启的话（默认开启）并且当前字符为<code>,</code>号会跳过该字符继续向下解析。因此这部分代码是用于跳过JSON数据中的空格, 换行符, 及逗号的解析。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixdmrm4j31do0bq0uk.jpg" alt="image-20210306142713240"></p>
+<p>下表为复现版本中各配置项属性默认值：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AutoCloseSource</td>
+<td>True</td>
+</tr>
+<tr>
+<td>AllowComment</td>
+<td>False</td>
+</tr>
+<tr>
+<td>AllowUnQuotedFieldNames</td>
+<td>True</td>
+</tr>
+<tr>
+<td>AllowSingleQuotes</td>
+<td>True</td>
+</tr>
+<tr>
+<td>InternFieldNames</td>
+<td>True</td>
+</tr>
+<tr>
+<td>AllowISO8601DateFormat</td>
+<td>False</td>
+</tr>
+<tr>
+<td>AllowArbitraryCommas</td>
+<td>True</td>
+</tr>
+<tr>
+<td>UseBigDecimal</td>
+<td>True</td>
+</tr>
+<tr>
+<td>IgnoreNotMatch</td>
+<td>True</td>
+</tr>
+<tr>
+<td>SortFeidFastMatch</td>
+<td>True</td>
+</tr>
+<tr>
+<td>DisableASM</td>
+<td>False</td>
+</tr>
+<tr>
+<td>DisableCircularReferenceDetect</td>
+<td>False</td>
+</tr>
+<tr>
+<td>InitStringFieldAsEmpty</td>
+<td>False</td>
+</tr>
+<tr>
+<td>SupportArrayToBean</td>
+<td>False</td>
+</tr>
+<tr>
+<td>OrderedField</td>
+<td>False</td>
+</tr>
+<tr>
+<td>DisableSpecialKeyDetect</td>
+<td>False</td>
+</tr>
+<tr>
+<td>UseObjectArray</td>
+<td>False</td>
+</tr>
+<tr>
+<td>SupportNonPublicField</td>
+<td>False</td>
+</tr>
+</tbody></table>
+<p>从代码172行开始就是正式解析JSON数据的部分了, 当前字符为<code>&quot;</code>时调用<code>scanSymbol</code>方法获取其双引号中的内容为键, 获得完整的键名后如果其后面的字符不为<code>:</code>则会抛出异常。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixjbz5xj31qu0k8jvy.jpg" alt="image-20210306143937229"></p>
+<p>获取到键的值后调用<code>resetStringposition</code>重置字符串位置为0, 判断key如果是<code>@type</code>并且<code>DisableSpecialKeyDetect</code>为关闭情况下, 依旧通过<code>scanSymbol</code>获取value的值（value是完整类名）。通过<strong>TypeUtils.loadClass</strong>加载类。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixmkey0j31va0amdiu.jpg" alt="image-20210306150328410"></p>
+<p>在<strong>TypeUtils#loadClass</strong>中获取当前线程的类加载器加载类并写入mappings中：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixpdevuj31yg0qyq9j.jpg" alt="image-20210306214952645"></p>
+<p>加载完类后<code>nextToken</code>用于判断当前字符为逗号时跳过逗号继续解析, 接着通过<code>ParserConfig#getDeserializer</code>方法获取<code>ParserConfig</code>对象<code>deserializer</code>属性指定Key的值。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixslqkcj31e80ne42m.jpg" alt="image-20210307141009149"></p>
+<p>其返回的是一个MiscCodec对象：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixvvteuj325o04uwg7.jpg" alt="image-20210307141103868"></p>
+<p>最后调用<code>MiscCodec.deserialze(DefaultJSONParser, java.net.InetAddress.class, null)</code>并return该返回值。对应代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">thisObj = deserializer.deserialze(<span class="keyword">this</span>, clazz, fieldName);</span><br><span class="line"><span class="keyword">return</span> thisObj;</span><br></pre></td></tr></table></figure>
+
+<p><code>MiscCodec#deserialze</code>在else分支中判断键的内容为<code>val</code>后解析其value的内容：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gocixyp9ixj30u00vd10h.jpg" alt="image-20210307142615526"></p>
+<p>最终在<code>MiscCodec</code>322行处会调用<code>InetAddress#getByName</code>发起DNS请求：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gociy1yxe5j31d00u0gtr.jpg" alt="image-20210307142925475"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>FastJson1.2.24版本默认开启AutoType</li>
+<li>FastJson1.2.24默认会忽略空格 注释符并可以解析十六进制和unicode字符</li>
+<li>FastJson1.2.24可使用白名单的<code>InetAddress</code>类进行DNS探测</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Background"><span class="toc-number">1.</span> <span class="toc-text">Background</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-Bean序列化Json"><span class="toc-number">2.</span> <span class="toc-text">Java Bean序列化Json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#探测FastJson"><span class="toc-number">3.</span> <span class="toc-text">探测FastJson</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&text=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&is_video=false&description=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=初识FastJson&body=Check out this article: http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&title=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&name=初识FastJson&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/03/08/%E5%88%9D%E8%AF%86FastJson/&t=初识FastJson" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

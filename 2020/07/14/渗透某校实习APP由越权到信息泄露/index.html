@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="声明1由于传播,利用本文所提供的信息而造成的任何直接或者间接的后果及损失，均有使用者本人承担，本文作者不为此承担任何责任。 信息收集部分暂且略过，无非也就是老生常谈的域名收集&#x2F;端口扫描以及网站使用的框架或CMS了。直奔主题进入今天的主题APP吧。  通过信息收集到的APP进入APP一番折腾，翻边各种接口后在一个返回包中看到了这样的东西嗯。。 看来UserId是通过前端传递的，用Burp全局搜索一下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="渗透某校实习APP由越权到信息泄露">
+<meta property="og:url" content="http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="声明1由于传播,利用本文所提供的信息而造成的任何直接或者间接的后果及损失，均有使用者本人承担，本文作者不为此承担任何责任。 信息收集部分暂且略过，无非也就是老生常谈的域名收集&#x2F;端口扫描以及网站使用的框架或CMS了。直奔主题进入今天的主题APP吧。  通过信息收集到的APP进入APP一番折腾，翻边各种接口后在一个返回包中看到了这样的东西嗯。。 看来UserId是通过前端传递的，用Burp全局搜索一下">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://exp1orer.github.io/img/app_1.png">
+<meta property="og:image" content="https://exp1orer.github.io/img/app_2.png">
+<meta property="og:image" content="https://exp1orer.github.io/img/app_3.png">
+<meta property="og:image" content="https://exp1orer.github.io/img/app_4.png">
+<meta property="og:image" content="https://exp1orer.github.io/img/app_5.png">
+<meta property="article:published_time" content="2020-07-14T05:28:37.000Z">
+<meta property="article:modified_time" content="2020-07-14T09:29:34.862Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="渗透测试">
+<meta property="article:tag" content="Web渗透">
+<meta property="article:tag" content="越权">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://exp1orer.github.io/img/app_1.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>渗透某校实习APP由越权到信息泄露</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/07/14/HelloWorld/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&text=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&is_video=false&description=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=渗透某校实习APP由越权到信息泄露&body=Check out this article: http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&name=渗透某校实习APP由越权到信息泄露&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&t=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#声明"><span class="toc-number">1.</span> <span class="toc-text">声明</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-number">2.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        渗透某校实习APP由越权到信息泄露
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-07-14T05:28:37.000Z" itemprop="datePublished">2020-07-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/">渗透测试</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Web%E6%B8%97%E9%80%8F/" rel="tag">Web渗透</a>, <a class="tag-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" rel="tag">渗透测试</a>, <a class="tag-link" href="/tags/%E8%B6%8A%E6%9D%83/" rel="tag">越权</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h4 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">由于传播,利用本文所提供的信息而造成的任何直接或者间接的后果及损失，均有使用者本人承担，本文作者不为此承担任何责任。</span><br></pre></td></tr></table></figure>
+<p>信息收集部分暂且略过，无非也就是老生常谈的域名收集/端口扫描以及网站使用的框架或CMS了。<br>直奔主题进入今天的主题APP吧。</p>
+<hr>
+<p>通过信息收集到的APP<br><img src="https://exp1orer.github.io/img/app_1.png" alt="app"><br>进入APP一番折腾，翻边各种接口后在一个返回包中看到了这样的东西<br><img src="https://exp1orer.github.io/img/app_2.png" alt="userid"><br>嗯。。 看来UserId是通过前端传递的，用Burp全局搜索一下关键字<br>在Cookie里找到了UserId的值。<br><img src="https://exp1orer.github.io/img/app_3.png" alt="cookie"><br>尝试修改一下Cookie的值看看能不能越权<br><img src="https://exp1orer.github.io/img/app_4.png" alt="idor"><br>成功查询到了其他学生的信息，确认是通过前端进行身份认证后写个脚本验证一下漏洞。。<br><img src="https://exp1orer.github.io/img/app_5.png" alt="data"></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>本次渗透测试纯属编造，漏洞已通知相关单位。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#声明"><span class="toc-number">1.</span> <span class="toc-text">声明</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-number">2.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&text=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&is_video=false&description=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=渗透某校实习APP由越权到信息泄露&body=Check out this article: http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&title=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&name=渗透某校实习APP由越权到信息泄露&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/14/%E6%B8%97%E9%80%8F%E6%9F%90%E6%A0%A1%E5%AE%9E%E4%B9%A0APP%E7%94%B1%E8%B6%8A%E6%9D%83%E5%88%B0%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/&t=渗透某校实习APP由越权到信息泄露" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

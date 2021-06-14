@@ -15,7 +15,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmlgzk9wj315g03a0u4.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmlmzttej315g07g0vp.jpg">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2021/png/1577776/1623306126159-f9e6d5ef-b9c2-4b2d-b555-a287a6c47b60.png?x-oss-process=image%252Fresize%252Cw_1492">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmpuq49xj315g06v768.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmlq17xwj615g09iwi502.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmltttcoj315g06y42f.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmlxp4x7j30sk01jmxf.jpg">
@@ -34,10 +34,10 @@
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmn4rehuj315a0u0wzd.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmn7o0naj615g0poqfj02.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmnbqoyhj315g0kcgr0.jpg">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2021/png/1577776/1623311354982-043f11a3-1200-4b67-bd3c-952afe09d3da.png?x-oss-process=image%252Fresize%252Cw_1492">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmp8szffj315g0qqdmd.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmnffwg1j315g0kl7iq.jpg">
 <meta property="article:published_time" content="2021-06-13T16:21:26.000Z">
-<meta property="article:modified_time" content="2021-06-14T03:19:57.517Z">
+<meta property="article:modified_time" content="2021-06-14T03:22:17.655Z">
 <meta property="article:author" content="Search?&#x3D;Null">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -187,7 +187,7 @@
 <blockquote>
 <p>scheme（协议），null，null，null，environment（空Hashtable对象）</p>
 </blockquote>
-<p><img src="https://cdn.nlark.com/yuque/0/2021/png/1577776/1623306126159-f9e6d5ef-b9c2-4b2d-b555-a287a6c47b60.png?x-oss-process=image%2Fresize%2Cw_1492" alt="image-20210609142811562"></p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grhmpuq49xj315g06v768.jpg" alt="image-20210609142811562"></p>
 <p>进入<strong>getURLObject</strong>调用 <strong>com.sun.naming.internal.ResourceManager#getURLObject</strong>，传入参数：</p>
 <blockquote>
 <p>“java.naming.factory.url.pkgs”</p>
@@ -245,7 +245,7 @@
 <p>加载本地的类返回实例对象：</p>
 <p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grhmnbqoyhj315g0kcgr0.jpg" alt="image-20210610153924242"></p>
 <p>然后回到 <strong>javax.naming.spi.NamingManager#getObjectInstance</strong> 会调用该对象的 <code>getObjectInstance</code>方法。</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2021/png/1577776/1623311354982-043f11a3-1200-4b67-bd3c-952afe09d3da.png?x-oss-process=image%2Fresize%2Cw_1492" alt="image-20210610154319567"></p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grhmp8szffj315g0qqdmd.jpg" alt="image-20210610154319567"></p>
 <p>触发RCE</p>
 <p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grhmnffwg1j315g0kl7iq.jpg" alt="image-20210610154340812"></p>
 <p>Veracode的博客中使用了org.apache.naming.factory.BeanFactory类，环境依赖Tomcat 8+或Spring  1.2.x。具体的攻击方法已有项目实现：<a href="https://github.com/welk1n/JNDI-Injection-Bypass" target="_blank" rel="noopener">https://github.com/welk1n/JNDI-Injection-Bypass</a></p>

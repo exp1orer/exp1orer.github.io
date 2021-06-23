@@ -18,14 +18,16 @@
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri5n8vqmqj31xi0u0qv5.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri5r91683j326w0cwk6l.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gri76omkrcj31lq0u0e81.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grs64wistvj626u0daqks02.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1griyi2n6yoj325w0hw1a8.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grizlztihej325s0iydsh.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grizp63xq1j326e0l2tm7.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grs654jgsvj325q04ujya.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grizx8raaaj61j70u07wh02.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grizynfwytj326o0netjg.jpg">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grj03nk8h8j326u0e8n6n.jpg">
 <meta property="article:published_time" content="2021-06-15T10:02:54.000Z">
-<meta property="article:modified_time" content="2021-06-15T10:03:36.676Z">
+<meta property="article:modified_time" content="2021-06-23T06:10:39.369Z">
 <meta property="article:author" content="Search?&#x3D;Null">
 <meta property="article:tag" content="FastJson">
 <meta property="article:tag" content="Java">
@@ -177,7 +179,7 @@
 <p>没什么好说的, <code>className</code> 以 <code>L</code> 开头及 <code>;</code>结尾则从截断第一个字符和最后一个字符, 也就是去除了 <code>L</code> 和 <code>;</code>, 然后加载类, 最后调用 <strong>JdbcRowSetImpl#connect</strong>触发JNDI注入。</p>
 <p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gri76omkrcj31lq0u0e81.jpg" alt="image-20210614231023418"></p>
 <h3 id="1-2-42"><a href="#1-2-42" class="headerlink" title="1.2.42"></a>1.2.42</h3><p>新的补丁将黑名单类转变通过比较 <code>hash</code>判断, 并在 <code>checkAutoType</code>中判断类名如果以 <code>L</code> 开头及 <code>;</code>结尾则会去除：</p>
-<p>![image-20210615144033206](/Users/p1g3/Library/Application Support/typora-user-images/image-20210615144033206.png)</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grs64wistvj626u0daqks02.jpg" alt="image-20210615144033206"></p>
 <p>经过 <code>checkAutoType</code> 后payload就会去除 一个<code>L</code> 和 <code>;</code>, 变成了 <code>Lcom.sun.rowset.JdbcRowSetImpl;</code>了。而在 <strong>TypeUtils#loadClass</strong>中会判断 <code>L</code> 和 <code>;</code>去除之后重新调用 loadClass。所以实际上这里使用多个 <code>L</code> 和 <code>;</code>效果是一样的, 都能够绕过 <code>checkAutoType</code>时的判断而在 <strong>loadClass</strong> 时又能正常加载类。</p>
 <p><img src="https://tva1.sinaimg.cn/large/008i3skNly1griyi2n6yoj325w0hw1a8.jpg" alt="image-20210615145530522"></p>
 <h3 id="1-2-45"><a href="#1-2-45" class="headerlink" title="1.2.45"></a>1.2.45</h3><p>黑名单类绕过, 需要有Mybatis。</p>
@@ -190,15 +192,13 @@
 <p>回到 <strong>DefaultJSONParser#parseObject</strong>调用 <strong>ParserConfig#getDeserialzer</strong></p>
 <p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grizp63xq1j326e0l2tm7.jpg" alt="image-20210615153655767"></p>
 <p>返回一个<strong>MiscCodec</strong> 对象。</p>
-<p>![image-20210615153958527](/Users/p1g3/Library/Application Support/typora-user-images/image-20210615153958527.png)</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grs654jgsvj325q04ujya.jpg" alt="image-20210615153958527"></p>
 <p>回到 <strong>parseObject</strong> 继续调用 <strong>MiscCodec#deserialze</strong>, 通过 <strong>TypeUtils#loadClass</strong>加载类。</p>
 <p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grizx8raaaj61j70u07wh02.jpg" alt="image-20210615154441134"></p>
 <p>这里strVal的值必须是 <code>val</code>键, 否则会抛出异常。</p>
 <p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grizynfwytj326o0netjg.jpg" alt="image-20210615154603145"></p>
 <p>在 <strong>loadClass</strong>时会调用该重载方法, 且 <code>cache</code>参数默认为true, 导致将恶意类 <code>com.sun.rowset.JdbcRowSetImpl</code>类写入 <code>mappings</code>。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Class&lt;?&gt; loadClass(String className, ClassLoader classLoader) &#123;</span><br><span class="line">        <span class="keyword">return</span> loadClass(className, classLoader, <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-
 
 <p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grj03nk8h8j326u0e8n6n.jpg" alt="image-20210615155051465"></p>
 <p>完整Payload</p>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前言某天在微信上看到了 补天平台的微信公众号文章推送, 是一篇PHP的代码审计文章。简单看了下觉得寻找利用链的过程挺有意思的, 与普通的追溯敏感函数审计相对有意思些, 于是便有了文本。 ThinkPHP内置函数OpenSNS 是基于 ThinkPHP 3.2.4框架开发的, 因此在复现漏洞时先温习一下其中的内置函数吧, ThinkPHP函数文件位于 ThinkPHP&#x2F;Common&#x2F;function">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenSNS远程代码执行漏洞分析">
+<meta property="og:url" content="http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="前言某天在微信上看到了 补天平台的微信公众号文章推送, 是一篇PHP的代码审计文章。简单看了下觉得寻找利用链的过程挺有意思的, 与普通的追溯敏感函数审计相对有意思些, 于是便有了文本。 ThinkPHP内置函数OpenSNS 是基于 ThinkPHP 3.2.4框架开发的, 因此在复现漏洞时先温习一下其中的内置函数吧, ThinkPHP函数文件位于 ThinkPHP&#x2F;Common&#x2F;function">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grutq4dmglj317g0okh5w.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grutw6gpy2j31ah0u0e3k.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gruu413j5uj31e40u0b29.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gruud3i535j327y0jedyl.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gruucnszg4j327t0u0hdt.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gruuf217jrj624g04etbe02.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gruuichmemj324u0gw7kh.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gruuoollmlj325a0lih1a.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gruuzgkth3j31k00u01kx.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gruv0s964rj31mq0quaxu.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grux9519mij316q0u0h3l.jpg">
+<meta property="article:published_time" content="2021-06-25T15:38:48.000Z">
+<meta property="article:modified_time" content="2021-06-25T15:39:04.260Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="漏洞复现">
+<meta property="article:tag" content="代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grutq4dmglj317g0okh5w.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>OpenSNS远程代码执行漏洞分析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/06/15/FastJson-1-2-41-1-2-48%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&text=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&is_video=false&description=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OpenSNS远程代码执行漏洞分析&body=Check out this article: http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&name=OpenSNS远程代码执行漏洞分析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&t=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThinkPHP内置函数"><span class="toc-number">2.</span> <span class="toc-text">ThinkPHP内置函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#R函数"><span class="toc-number">2.1.</span> <span class="toc-text">R函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#A函数"><span class="toc-number">2.2.</span> <span class="toc-text">A函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D函数"><span class="toc-number">2.3.</span> <span class="toc-text">D函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#远程代码执行分析"><span class="toc-number">3.</span> <span class="toc-text">远程代码执行分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞复现"><span class="toc-number">4.</span> <span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        OpenSNS远程代码执行漏洞分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-06-25T15:38:48.000Z" itemprop="datePublished">2021-06-25</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">代码审计</a>, <a class="tag-link" href="/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" rel="tag">漏洞复现</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>某天在微信上看到了 <code>补天平台</code>的微信公众号文章推送, 是一篇PHP的代码审计文章。简单看了下觉得寻找利用链的过程挺有意思的, 与普通的追溯敏感函数审计相对有意思些, 于是便有了文本。</p>
+<h3 id="ThinkPHP内置函数"><a href="#ThinkPHP内置函数" class="headerlink" title="ThinkPHP内置函数"></a>ThinkPHP内置函数</h3><p><code>OpenSNS</code> 是基于 <strong>ThinkPHP 3.2.4</strong>框架开发的, 因此在复现漏洞时先温习一下其中的内置函数吧, ThinkPHP函数文件位于 <strong>ThinkPHP/Common/functions.php</strong>文件。</p>
+<h4 id="R函数"><a href="#R函数" class="headerlink" title="R函数"></a>R函数</h4><p>用于远程调用控制器的方法, 接收 <code>$url</code>, <code>$vars</code>, <code>$layer</code>参数。</p>
+<ul>
+<li>调用 pathinfo 函数解析 <code>$url</code>参数</li>
+<li>调用A函数实例化类</li>
+<li>通过 call_user_func_array 函数调用远程控制器方法</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grutq4dmglj317g0okh5w.jpg" alt="image-20210625211659225"></p>
+<h4 id="A函数"><a href="#A函数" class="headerlink" title="A函数"></a>A函数</h4><p>用于实例化多层控制器, 接收 <code>$name</code>, <code>$layer</code>, <code>$level</code>参数。</p>
+<ul>
+<li>解析资源地址</li>
+<li>类存在返回实例化对象, 反之返回false</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grutw6gpy2j31ah0u0e3k.jpg" alt="image-20210625212251435"></p>
+<h4 id="D函数"><a href="#D函数" class="headerlink" title="D函数"></a>D函数</h4><p>实例化模型类, 拼接的路径默认是模块下的 <code>Model</code>目录, 所以只能是 <strong>模型类</strong>。</p>
+<ul>
+<li>解析资源地址</li>
+<li>实例化类并返回</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gruu413j5uj31e40u0b29.jpg" alt="image-20210625213023433"></p>
+<h3 id="远程代码执行分析"><a href="#远程代码执行分析" class="headerlink" title="远程代码执行分析"></a>远程代码执行分析</h3><p>漏洞位于 <strong>Application/Weibo/Controller/ShareController.class.php</strong>的 <code>shareBox</code>方法, 功能很简单, 如下所示</p>
+<ul>
+<li>从GET接收query参数后进行url解码</li>
+<li>将接收的query参数解析为一个数组变量</li>
+<li>调用assign方法传入可控的参数</li>
+<li>调用T方法渲染模版</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gruud3i535j327y0jedyl.jpg" alt="image-20210625213906609"></p>
+<p>在模版文件中可以看到调用了 <code>W</code>函数传入了两个参数, <code>Weibo/Share/fetchShare</code>和前面调用 <code>assign</code>方法时传入的可控的 <code>$parse_array</code>变量。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gruucnszg4j327t0u0hdt.jpg" alt="image-20210625213838535"></p>
+<p><code>W</code> 函数调用 <code>R</code>函数, 多传入了一个 <code>Widget</code>字符串。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gruuf217jrj624g04etbe02.jpg" alt="image-20210625214100316"></p>
+<p>接下来的过程就不多赘述了, 不明白的看上面的函数分析就懂了, 程序会调用到 <strong>Application/Weibo/Widget/ShareWidget.class.php</strong>的 <code>fetchShare</code>方法。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gruuichmemj324u0gw7kh.jpg" alt="image-20210625214408975"></p>
+<p><code>assignFetch</code>方法会调用 <code>D</code>函数, 其会返回 <strong>Application/Weibo/Model/ShareModel.class.php</strong>的实例对象, 然后调用该对象的 <code>getInfo</code>方法, 漏洞核心正是位于该方法。</p>
+<p>可以看到在 <code>getInfo</code>中调用的 <code>D</code>函数参数完全可控, 前面说过只要通过 <code>D</code>函数则可以实例化一个模型类, 而此处的参数完全可控则代表我们可以实例化任意一个模型类, 并且可以调用返回的模型类的任意方法且参数可控。唯一不足的是只有第一个参数是可控的。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gruuoollmlj325a0lih1a.jpg" alt="image-20210625215008896"></p>
+<p>在 <strong>ThinkPHP/Library/Think/Model.class.php</strong> 中的 <code>_validationFieldItem</code>方法调用了 <code>call_user_func_array</code>函数, 通过该函数我们又可以执行任意函数了, 但此次的 <code>$val</code>参数并不可控, 上面说过了, 我们只能够控制调用方法的第一个参数。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gruuzgkth3j31k00u01kx.jpg" alt="image-20210625220035838"></p>
+<p>而该漏洞的作者找到了 *<em>Application/Common/Model/ScheduleModel.class.php *</em>的 <code>runSchedule</code>方法, 通过该方法再次调用 <code>D</code>函数, 而这回调用的方法和两个参数都可控, 完美地弥补了前面所说的不足之处。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gruv0s964rj31mq0quaxu.jpg" alt="image-20210625220152599"></p>
+<h3 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;?s&#x3D;Weibo&#x2F;Share&#x2F;shareBox&amp;query&#x3D;app%3DCommon%26model%3DSchedule%26method%3DrunSchedule%26id%5Bstatus%5D%3D1%26id%5Bmethod%5D%3D-%3E_validationFieldItem%26id%5Bargs%5D%3Dv%3D1%26id%5B%5D%3Dv%26id%5B%5D%3Dphpinfo%26id%5B%5D%3D1%26id%5B%5D%3D1%26id%5B%5D%3Dfunction%26id%5B%5D%3D1</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grux9519mij316q0u0h3l.jpg" alt="image-20210625231906724"></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://mp.weixin.qq.com/s/5_HxHEFrCxOCagGOQPOCDw" target="_blank" rel="noopener">某CMS代码执行漏洞分析</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThinkPHP内置函数"><span class="toc-number">2.</span> <span class="toc-text">ThinkPHP内置函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#R函数"><span class="toc-number">2.1.</span> <span class="toc-text">R函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#A函数"><span class="toc-number">2.2.</span> <span class="toc-text">A函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D函数"><span class="toc-number">2.3.</span> <span class="toc-text">D函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#远程代码执行分析"><span class="toc-number">3.</span> <span class="toc-text">远程代码执行分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞复现"><span class="toc-number">4.</span> <span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&text=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&is_video=false&description=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OpenSNS远程代码执行漏洞分析&body=Check out this article: http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&name=OpenSNS远程代码执行漏洞分析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&t=OpenSNS远程代码执行漏洞分析" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

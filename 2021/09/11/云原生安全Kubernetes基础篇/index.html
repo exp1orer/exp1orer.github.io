@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="TL;DR本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来学习Kubernetes的知识点，而文中的内容只是总结了部分和安全相关的知识点。 Kubernetes对象（引用自：资源对象与基本概念解析 · Kubernetes Handbook - Kubernetes 中文指南&#x2F;云原生应用架构实践手册">
+    <meta name="description" content="TL;DR本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来系统地学习Kubernetes，而本文的内容只是总结了部分和安全相关的知识点。 Kubernetes对象（引用自：资源对象与基本概念解析 · Kubernetes Handbook - Kubernetes 中文指南&#x2F;云原生应用架构实践手册 ·">
 <meta property="og:type" content="article">
 <meta property="og:title" content="云原生安全Kubernetes基础篇">
 <meta property="og:url" content="http://yoursite.com/2021/09/11/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%AE%89%E5%85%A8Kubernetes%E5%9F%BA%E7%A1%80%E7%AF%87/index.html">
 <meta property="og:site_name" content="Search is Null">
-<meta property="og:description" content="TL;DR本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来学习Kubernetes的知识点，而文中的内容只是总结了部分和安全相关的知识点。 Kubernetes对象（引用自：资源对象与基本概念解析 · Kubernetes Handbook - Kubernetes 中文指南&#x2F;云原生应用架构实践手册">
+<meta property="og:description" content="TL;DR本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来系统地学习Kubernetes，而本文的内容只是总结了部分和安全相关的知识点。 Kubernetes对象（引用自：资源对象与基本概念解析 · Kubernetes Handbook - Kubernetes 中文指南&#x2F;云原生应用架构实践手册 ·">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214006.png">
 <meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210910214321.png">
@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911145329.png">
 <meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20210911153402.png">
 <meta property="article:published_time" content="2021-09-11T13:06:35.000Z">
-<meta property="article:modified_time" content="2021-09-11T13:07:42.616Z">
+<meta property="article:modified_time" content="2021-09-19T03:24:31.588Z">
 <meta property="article:author" content="Search?&#x3D;Null">
 <meta property="article:tag" content="云原生">
 <meta property="article:tag" content="Kubernetes">
@@ -171,7 +171,7 @@
   
 
   <div class="content" itemprop="articleBody">
-    <h1 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h1><p>本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来学习Kubernetes的知识点，而文中的内容只是总结了部分和安全相关的知识点。</p>
+    <h1 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h1><p>本文记录了我在学习Kubernetes及云原生架构安全中的笔记，大部分内容均来自Kubernetes官方文档，作为一个初学者非常推荐阅读官方文档来系统地学习Kubernetes，而本文的内容只是总结了部分和安全相关的知识点。</p>
 <h1 id="Kubernetes对象"><a href="#Kubernetes对象" class="headerlink" title="Kubernetes对象"></a>Kubernetes对象</h1><p>（引用自：<a href="https://jimmysong.io/kubernetes-handbook/concepts/objects.html" target="_blank" rel="noopener">资源对象与基本概念解析 · Kubernetes Handbook - Kubernetes 中文指南/云原生应用架构实践手册 · Jimmy Song</a>）</p>
 <table>
 <thead>

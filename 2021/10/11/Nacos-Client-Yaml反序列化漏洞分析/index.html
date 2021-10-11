@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="背景Nacos 致力于帮助您发现、配置和管理微服务。Nacos 提供了一组简单易用的特性集，帮助您快速实现动态服务发现、服务配置、服务元数据及流量管理。 Nacos 帮助您更敏捷和容易地构建、交付和管理微服务平台。 Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。 Nacos是阿里巴巴于2018年开源的项目，目前在Github中已获得 19.8kS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nacos Client Yaml反序列化漏洞分析">
+<meta property="og:url" content="http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="背景Nacos 致力于帮助您发现、配置和管理微服务。Nacos 提供了一组简单易用的特性集，帮助您快速实现动态服务发现、服务配置、服务元数据及流量管理。 Nacos 帮助您更敏捷和容易地构建、交付和管理微服务平台。 Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。 Nacos是阿里巴巴于2018年开源的项目，目前在Github中已获得 19.8kS">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009105629.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009145317.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009111845.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009113148.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009112747.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009113148.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009113337.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009114931.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009115048.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009115432.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009140514.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009141118.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009141723.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009142613.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009143326.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009143745.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009143931.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009145126.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009233459.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009144248.png">
+<meta property="article:published_time" content="2021-10-11T02:09:39.000Z">
+<meta property="article:modified_time" content="2021-10-11T02:10:18.890Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="Nacos">
+<meta property="article:tag" content="Yaml反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009105629.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Nacos Client Yaml反序列化漏洞分析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/10/01/ForgeRock-OpenAM-CVE-2021-35464%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&text=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&is_video=false&description=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Nacos Client Yaml反序列化漏洞分析&body=Check out this article: http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&name=Nacos Client Yaml反序列化漏洞分析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&t=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#未授权访问漏洞"><span class="toc-number">2.</span> <span class="toc-text">未授权访问漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#客户端Yaml反序列化"><span class="toc-number">3.</span> <span class="toc-text">客户端Yaml反序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞分析"><span class="toc-number">4.</span> <span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞修复"><span class="toc-number">5.</span> <span class="toc-text">漏洞修复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实战应用"><span class="toc-number">6.</span> <span class="toc-text">实战应用</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Nacos Client Yaml反序列化漏洞分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-10-11T02:09:39.000Z" itemprop="datePublished">2021-10-11</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Nacos/" rel="tag">Nacos</a>, <a class="tag-link" href="/tags/Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">Yaml反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>Nacos 致力于帮助您发现、配置和管理微服务。Nacos 提供了一组简单易用的特性集，帮助您快速实现动态服务发现、服务配置、服务元数据及流量管理。</p>
+<p>Nacos 帮助您更敏捷和容易地构建、交付和管理微服务平台。 Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。</p>
+<p>Nacos是阿里巴巴于2018年开源的项目，目前在Github中已获得 <strong>19.8</strong>kSt，由此可见其的使用广泛程度。</p>
+<h2 id="未授权访问漏洞"><a href="#未授权访问漏洞" class="headerlink" title="未授权访问漏洞"></a>未授权访问漏洞</h2><p><strong>threedr3am</strong>师傅在去年十二月份的时候在Github上给Nacos项目提交了Bypass 认证的Issue，详情可移步<a href="https://github.com/alibaba/nacos/issues/4593" target="_blank" rel="noopener">https://github.com/alibaba/nacos/issues/4593</a>。在该Issue中提及了漏洞详情，Nacos的认证过滤器中会判断客户端的<strong>User-Agent</strong>如果是以<strong>Constants.NACOS_SERVER_HEADER</strong>（Nacos-Server）开头的话，则直接return返回。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009105629.png" alt=""></p>
+<p>对于上述的认证绕过漏洞争议很大，Nacos官方起初并不认为这是一个安全漏洞的问题，不过还是在1.4.1版本中发布了漏洞修复补丁。在1.4.1版本中需要在 <strong>application.properties</strong>添加<code>nacos.core.auth.enable.userAgentAuthWhite</code>的属性值为false，即可避免使用User-Agent绕过鉴权的问题，但这也引发了新的Bypass，具体的漏洞详情可移步至<a href="https://github.com/alibaba/nacos/issues/4701" target="_blank" rel="noopener">https://github.com/alibaba/nacos/issues/4701</a>，不再赘述。</p>
+<h2 id="客户端Yaml反序列化"><a href="#客户端Yaml反序列化" class="headerlink" title="客户端Yaml反序列化"></a>客户端Yaml反序列化</h2><p>在Nacos的releases记录中搜索 <strong>yaml</strong> 关键字不难发现其在1.4.2版本中有个PR更新了Yaml的安全解析：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009145317.png" alt=""></p>
+<p>而根据PR的描述内容可知实际上该漏洞只影响单独使用 <strong>nacos-client</strong> SDK的用户，原因在于spring cloud、springboot、dubbo等框架中并非使用的 <strong>AbstractConfigChangeListener</strong> 监听配置，所以该漏洞只影响了使用<strong>AbstractConfigChangeListener</strong>监听配置的客户端。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009111845.png" alt=""></p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>首先在Nacos服务端中添加一个用于测试监听的配置：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009113148.png" alt=""></p>
+<p>使用Maven引入nacos-client依赖:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.nacos<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>nacos-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>以官方的监听配置请求示例复现，需要修改<strong>serverAddr、dataId、group、Listener</strong>，如果配置了登陆还需要添加<strong>username</strong>和<strong>password</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Client.java</span></span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.NacosFactory;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.config.ConfigChangeEvent;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.config.ConfigService;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.client.config.listener.impl.AbstractConfigChangeListener;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Properties;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        String serverAddr = <span class="string">"&#123;serverAddr&#125;"</span>;</span><br><span class="line">        String dataId = <span class="string">"&#123;dataId&#125;"</span>;</span><br><span class="line">        String group = <span class="string">"&#123;group&#125;"</span>;</span><br><span class="line">        Properties properties = <span class="keyword">new</span> Properties();</span><br><span class="line">        properties.put(<span class="string">"serverAddr"</span>, serverAddr);</span><br><span class="line">        properties.put(<span class="string">"username"</span>, <span class="string">"nacos"</span>);</span><br><span class="line">        properties.put(<span class="string">"password"</span>, <span class="string">"nacos"</span>);</span><br><span class="line">        ConfigService configService = NacosFactory.createConfigService(properties);</span><br><span class="line">        String content = configService.getConfig(dataId, group, <span class="number">5000</span>);</span><br><span class="line">        System.out.println(content);</span><br><span class="line">        configService.addListener(dataId, group, <span class="keyword">new</span> AbstractConfigChangeListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">receiveConfigChange</span><span class="params">(ConfigChangeEvent configChangeEvent)</span> </span>&#123;</span><br><span class="line">                System.out.println(configChangeEvent);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后在<strong>com.alibaba.nacos.client.config.impl.YmlChangeParser#doParse</strong>方法中打下断点：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009112747.png" alt=""></p>
+<p>开启Debug并在服务端中修改上述用于测试的配置内容为yaml反序列化的payload，该payload会加载远程的jar包并运行主类的代码。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009113148.png" alt="">点击发布后即可命中断点</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009113337.png" alt=""></p>
+<p>再根据堆栈信息进行回溯的调试，首先在<strong>ConfigFactory#createConfigService</strong>方法中通过反射获取<strong>com.alibaba.nacos.client.config.NacosConfigService</strong>类的实例对象并返回该对象。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009114931.png" alt=""></p>
+<p>在<strong>NacosConfigService</strong>的构造器中实例化<strong>ClientWorker</strong>对象</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009115048.png" alt=""></p>
+<p>跟进<strong>ClientWorker</strong>的<strong>checkConfigInfo</strong>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009115432.png" alt="">传入的对象为<strong>ClientWorker</strong>的内部类<strong>LongPollingRunnable</strong>对象，会调用其run方法。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009140514.png" alt=""></p>
+<p>而run方法就是nacos客户端的长轮询监听，run方法中会循环调用<strong>cacheDatax.checkListenerMd5</strong>方法，而CacheData对象是从<strong>ClientWorker</strong>对象的<strong>cacheMap</strong>属性中获取的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Iterator var3 = ClientWorker.<span class="keyword">this</span>.cacheMap.values().iterator();</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009141118.png" alt=""></p>
+<p>而<strong>cacheMap</strong>中缓存的<strong>CacheData</strong>对象是在客户端添加监听的时候写入的</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009141723.png" alt="">再回到<strong>ClientWorker.LongPollingRunnable#run</strong>方法中，前面说到其会调用<strong>checkListenerMd5</strong>方法，该方法中会调用<strong>safeNotifyListener方法</strong>，并传入监听配置的<strong>dataId</strong>、<strong>group</strong>、<strong>content</strong>（修改的新内容）、<strong>type</strong>、<strong>md5</strong>及<strong>CacheData.ManagerListenerWrap</strong>对象。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009142613.png" alt=""></p>
+<p>在<strong>safeNotifyListener</strong>方法中调用了<strong>ConfigChangeHandler#parseChangeData</strong>方法解析数据，传入的参数<strong>listenerWrap.lastContent</strong>为修改前的内容，<strong>content</strong>为修改后的内容，<strong>type</strong>为数据类型（TEXT/JSON/XML/YAML/HTML/Properties）。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009143326.png" alt="">其会调用<strong>YmlChangeParser#doParse</strong>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009143745.png" alt=""></p>
+<p><strong>YmlChangeParser#doParser</strong>方法中触发Yaml反序列化漏洞，请求远程的Jar包并执行。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009143931.png" alt=""></p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009145126.png" alt=""></p>
+<p>再次声明，该漏洞只影响使用<strong>AbstractConfigChangeListener</strong>监听器的客户端，原因如下：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009233459.png" alt=""></p>
+<h2 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><p>在1.4.2版本中已修复了该漏洞，修复方法为使用SnakeYaml提供的SafeConstructor解析Yaml配置。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211009144248.png" alt=""></p>
+<h2 id="实战应用"><a href="#实战应用" class="headerlink" title="实战应用"></a>实战应用</h2><p>在实际的渗透测试中如果获取了Nacos Server控制台权限的话，不妨可以尝试修改已有的配置为Yaml Payload进行盲打客户端的攻击。但通常情况下的Springboot或SpringCloud都可以集成使用Nacos，所以这种场景下一般不会出现存在漏洞的情况。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#未授权访问漏洞"><span class="toc-number">2.</span> <span class="toc-text">未授权访问漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#客户端Yaml反序列化"><span class="toc-number">3.</span> <span class="toc-text">客户端Yaml反序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞分析"><span class="toc-number">4.</span> <span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞修复"><span class="toc-number">5.</span> <span class="toc-text">漏洞修复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实战应用"><span class="toc-number">6.</span> <span class="toc-text">实战应用</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&text=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&is_video=false&description=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Nacos Client Yaml反序列化漏洞分析&body=Check out this article: http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&title=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&name=Nacos Client Yaml反序列化漏洞分析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/&t=Nacos Client Yaml反序列化漏洞分析" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

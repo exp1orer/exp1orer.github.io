@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="简介JAS-WS 的全称为 Java API for XML Services，代指Java程序设计语言中用于创建 Web Services 的API。Java程序员通过该API可快速开发基于XML的 Web Services 客户端及服务端。 Web Services 是应用程序组件之一，可被其他应用程序使用，XML 是 Web Services的基础，Web Services 包含以下三大要素">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java WebService记">
+<meta property="og:url" content="http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="简介JAS-WS 的全称为 Java API for XML Services，代指Java程序设计语言中用于创建 Web Services 的API。Java程序员通过该API可快速开发基于XML的 Web Services 客户端及服务端。 Web Services 是应用程序组件之一，可被其他应用程序使用，XML 是 Web Services的基础，Web Services 包含以下三大要素">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204163124.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204164646.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204164718.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204213235.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204213538.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204232440.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204232750.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204235502.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211205162852.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211205162959.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211205171838.png">
+<meta property="article:published_time" content="2021-12-05T14:43:33.000Z">
+<meta property="article:modified_time" content="2021-12-05T14:44:05.617Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Web Services">
+<meta property="article:tag" content="Apache Axis">
+<meta property="article:tag" content="Apache CXF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204163124.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Java WebService记</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/10/11/Nacos-Client-Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&text=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&is_video=false&description=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java WebService记&body=Check out this article: http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&name=Java WebService记&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&t=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Web-Services开发"><span class="toc-number">2.</span> <span class="toc-text">Web Services开发</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache-Axis2"><span class="toc-number">2.1.</span> <span class="toc-text">Apache Axis2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Axis2配置"><span class="toc-number">2.1.1.</span> <span class="toc-text">Axis2配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发布服务（Publish-Service）"><span class="toc-number">2.1.2.</span> <span class="toc-text">发布服务（Publish Service）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#客户端服务调用"><span class="toc-number">2.1.3.</span> <span class="toc-text">客户端服务调用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache-CXF"><span class="toc-number">2.2.</span> <span class="toc-text">Apache CXF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#发布服务"><span class="toc-number">2.2.1.</span> <span class="toc-text">发布服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring整合CXF"><span class="toc-number">2.2.2.</span> <span class="toc-text">Spring整合CXF</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#拓尔思漏洞分析"><span class="toc-number">3.</span> <span class="toc-text">拓尔思漏洞分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Java WebService记
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-12-05T14:43:33.000Z" itemprop="datePublished">2021-12-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Apache-Axis/" rel="tag">Apache Axis</a>, <a class="tag-link" href="/tags/Apache-CXF/" rel="tag">Apache CXF</a>, <a class="tag-link" href="/tags/Java/" rel="tag">Java</a>, <a class="tag-link" href="/tags/Web-Services/" rel="tag">Web Services</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><code>JAS-WS</code> 的全称为 <code>Java API for XML Services</code>，代指Java程序设计语言中用于创建 <code>Web Services</code> 的API。Java程序员通过该API可快速开发基于XML的 <code>Web Services</code> 客户端及服务端。</p>
+<p><code>Web Services</code> 是应用程序组件之一，可被其他应用程序使用，<code>XML</code> 是 <code>Web Services</code>的基础，<code>Web Services</code> 包含以下三大要素。</p>
+<ul>
+<li><code>SOAP</code>（Simple Object Access Protoco）简单对象访问协议;</li>
+<li><code>WSDL</code>（Web Services Description Language）Web服务描述语言</li>
+<li><code>UUDI</code>（Universal Description Discovery and Integration）发布和搜索WEB服务的协议;</li>
+</ul>
+<h1 id="Web-Services开发"><a href="#Web-Services开发" class="headerlink" title="Web Services开发"></a>Web Services开发</h1><p>常用的 <code>Web Services</code> 框架有 <code>Apache Axis1</code>、<code>Apache Axis2</code>、<code>Apache CXF</code>，而 <code>Apache Axis1</code>已经逐渐被淘汰所以本文不会讨论，重点关注 <code>Apache Axis2</code> 及 <code>Apache CXF</code> 。</p>
+<h2 id="Apache-Axis2"><a href="#Apache-Axis2" class="headerlink" title="Apache Axis2"></a>Apache Axis2</h2><p>在IDEA中新建 <code>Axis2Demo</code>项目后右键选择 <strong>添加框架的支持</strong> 并选中 <code>Web Application</code>。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204163124.png" alt="image-20211204163124200"></p>
+<p>从Apache Axis2官网处下载<a href="http://www.apache.org/dyn/closer.lua/axis/axis2/java/core/1.8.0/axis2-1.8.0-war.zip" target="_blank" rel="noopener">war包</a>进行部署，将 <code>axis2.war</code>解压后把 <code>WEB-INF</code> 和 <code>axis2-web</code>目录复制到项目的 <code>web</code>目录下（如下图所示）并启动Tomcat Server。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204164646.png" alt="image-20211204164646464"></p>
+<p>访问 <code>http://localhost:8080/Axis2Demo_war_exploded/axis2-web/index.jsp</code> 出现下图的页面表示部署成功。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204164718.png" alt="image-20211204164718535"></p>
+<h3 id="Axis2配置"><a href="#Axis2配置" class="headerlink" title="Axis2配置"></a>Axis2配置</h3><blockquote>
+<p> 在 <code>Axis1</code>中的全局配置和 <code>Servcies</code>的配置均在 <code>server-config.wsdd</code>中进行配置，而 <code>Axis2</code> 则将全局配置单独存放于 <code>WEB-INF/conf/axis2.xml</code>中，<code>services</code>的配置文件则位于 <code>servcies</code>。</p>
+</blockquote>
+<h3 id="发布服务（Publish-Service）"><a href="#发布服务（Publish-Service）" class="headerlink" title="发布服务（Publish Service）"></a>发布服务（Publish Service）</h3><p>新建一个 <code>HelloService</code>类并编译为 <code>HelloService.class</code> 复制至 <code>WEB-INF/pojo</code> 目录下并重启服务。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不能声明package</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HelloService</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">sayHello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"hello"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">sayHelloToPerson</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (name == <span class="keyword">null</span>) &#123;</span><br><span class="line">            name = <span class="string">"nobody"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"hello, "</span> + name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重启服务后再次访问 <code>http://localhost:8080/Axis2Demo_war_exploded/services/HelloService?wsdl</code> 即可发现新发布的服务，点击 <code>HelloService</code> 即可查看Axis自动为该服务生成的WSDL，其描述了如何调用服务的方法及返回内容：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204213235.png" alt="image-20211204213235297"></p>
+<p>使用 <code>SoapUI</code> 客户端调用 <code>HelloService</code> 服务方法：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204213538.png" alt="image-20211204213538292"></p>
+<p>而之所以 <code>WEB-INF/pojo</code>目录下的 <code>.class</code> 文件会自动发布为服务是因为在 <code>axis2.xml</code> 配置文件中的 <code>deployer</code> 标签中所配置的该选项。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">deployer</span> <span class="attr">extension</span>=<span class="string">".class"</span> <span class="attr">directory</span>=<span class="string">"pojo"</span> <span class="attr">class</span>=<span class="string">"org.apache.axis2.deployment.POJODeployer"</span>/&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 如果需要在其他目录自动发布服务只需添加新的标签即可 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">deployer</span> <span class="attr">extension</span>=<span class="string">".class"</span> <span class="attr">directory</span>=<span class="string">"services"</span> <span class="attr">class</span>=<span class="string">"org.apache.axis2.deployment.POJODeployer"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>上述的方式发布服务需要将编译后的类放置在某个具体的目录中，且不能包含 <code>package</code>，而使用 <code>*.aar</code> 的方式则可以解决此问题。首先在Project的根目录下新建 <code>META-INF/services.xml</code>，文件内容可以参考官方示例 <code>version.aar</code> 。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">service</span> <span class="attr">name</span>=<span class="string">"HelloService"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>一个简单的WebService<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 服务全类名 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parameter</span> <span class="attr">name</span>=<span class="string">"ServiceClass"</span>&gt;</span>com.ws.test.services.HelloService<span class="tag">&lt;/<span class="name">parameter</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">operation</span> <span class="attr">name</span>=<span class="string">"send"</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 信息接收器， 无返回值用：RPCInOnlyMessageReceiver--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">messageReceiver</span> <span class="attr">mep</span>=<span class="string">"http://www.w3.org/ns/wsdl/in-only"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">class</span>=<span class="string">"org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">operation</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">operation</span> <span class="attr">name</span>=<span class="string">"add"</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 信息接收器， 有返回值用：RPCMessageReceiver--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">messageReceiver</span> <span class="attr">mep</span>=<span class="string">"http://www.w3.org/2004/08/wsdl/in-out"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">class</span>=<span class="string">"org.apache.axis2.rpc.receivers.RPCMessageReceiver"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">operation</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">service</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>最终结构为如下所示，在项目根目录中执行 <strong>jar cvf HelloService.aar .</strong>进行打包。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204232440.png" alt="image-20211204232440270"></p>
+<p>将打包后的文件复制至 <code>WEB-INF/services</code> 目录下，即可在服务列表中看到新注册的服务，或者在 <code>Axis</code> 后台中也可以上传包部署（因此如果应用程序的Axis后台可访问且为默认凭据即可部署恶意Service获取权限）。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204232750.png" alt="image-20211204232750909"></p>
+<h3 id="客户端服务调用"><a href="#客户端服务调用" class="headerlink" title="客户端服务调用"></a>客户端服务调用</h3><p><strong>调用 <code>Web Service</code> 可通过代码的方式实现也可以通过WSDL构造SOAP协议调用方法，最简便的方法则是使用SoapUI，其会根据 <code>Web Service</code> 的WSDL生成对应方法的SOAP协议请求。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 代码实现Web Service调用</span></span><br><span class="line"><span class="keyword">import</span> javax.xml.namespace.QName;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.axis2.addressing.EndpointReference;</span><br><span class="line"><span class="keyword">import</span> org.apache.axis2.client.Options;</span><br><span class="line"><span class="keyword">import</span> org.apache.axis2.rpc.client.RPCServiceClient;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebServiceClient</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        RPCServiceClient serviceClient = <span class="keyword">new</span> RPCServiceClient();</span><br><span class="line">        Options options = serviceClient.getOptions();</span><br><span class="line"></span><br><span class="line">        EndpointReference targetEPR = <span class="keyword">new</span> EndpointReference(<span class="string">"http://192.168.0.105:8080/Axis2Demo_war_exploded/services/HelloService"</span>);</span><br><span class="line">        options.setTo(targetEPR);</span><br><span class="line"></span><br><span class="line">        Object[] entryArgs = <span class="keyword">new</span> Object[]&#123;<span class="number">4</span>, <span class="number">2</span>&#125;;</span><br><span class="line">        QName qName = <span class="keyword">new</span> QName(<span class="string">"http://ws.apache.org/axis2"</span>, <span class="string">"add"</span>);</span><br><span class="line"></span><br><span class="line">        Object result = serviceClient.invokeBlocking(qName, entryArgs, new Class[]&#123;int.class&#125;)[0];</span><br><span class="line"></span><br><span class="line">        qName = <span class="keyword">new</span> QName(<span class="string">"http://ws.apache.org/axis2"</span>, <span class="string">"send"</span>);</span><br><span class="line">        serviceClient.invokeRobust(qName, <span class="keyword">new</span> Object[]&#123;<span class="string">"hello world!"</span>&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Soap UI</strong></p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211204235502.png" alt="image-20211204235502667"></p>
+<h2 id="Apache-CXF"><a href="#Apache-CXF" class="headerlink" title="Apache CXF"></a>Apache CXF</h2><blockquote>
+<p>Apache CXF是一个开源的、全功能的，容易使用的Web服务框架。CXF是两个项目的结合：由IONA技术公司开发的Celtix和由Codehaus主持的团队开发的XFire。</p>
+</blockquote>
+<p><strong>CXF支持的特性非常广泛，但特性主要在以下一些方面：</strong></p>
+<ul>
+<li><p>支持的Web服务标准包括：</p>
+<ul>
+<li><p>SOAP</p>
+</li>
+<li><p>WS-Addressing</p>
+</li>
+<li><p>WS-Policy</p>
+</li>
+<li><p>WS-ReliableMessaging</p>
+</li>
+<li><p>WS-Security</p>
+</li>
+<li><p>WS-SecurityPolicy</p>
+</li>
+<li><p>WS-SecureConversation</p>
+</li>
+</ul>
+</li>
+<li><p>JAS-WS API，用于Web服务开发</p>
+<ul>
+<li><p>WSDL优先支持工具</p>
+</li>
+<li><p>Java优先支持</p>
+</li>
+</ul>
+</li>
+<li><p>JAX-RS（JSR 311 1.0）API，用于RESTful Web服务开发</p>
+</li>
+<li><p>…</p>
+</li>
+</ul>
+<hr>
+<p>⬆️内容摘自Wiki百科。</p>
+<h3 id="发布服务"><a href="#发布服务" class="headerlink" title="发布服务"></a>发布服务</h3><p>使用 <code>Maven</code> 构建项目，POM文件内容如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>CXFDemo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.cxf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cxf-rt-frontend-jaxws<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.cxf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cxf-rt-transports-http<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.cxf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cxf-rt-transports-http-jetty<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.cxf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cxf-rt-transports-http-jetty<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写一个服务接口，定义 <code>sayHi</code>方法:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.services;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.jws.WebService;</span><br><span class="line"><span class="comment">// 声明这是一个Ws服务接口</span></span><br><span class="line"><span class="meta">@WebService</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HelloWorld</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 定义服务方法</span></span><br><span class="line">    <span class="function">String <span class="title">sayHi</span><span class="params">(String name)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编写一个服务接口的实现类:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.services;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.jws.WebService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@WebService</span>(endpointInterface = <span class="string">"org.example.services.HelloWorld"</span>, serviceName = <span class="string">"HelloWorld"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorldImpl</span> <span class="keyword">implements</span> <span class="title">HelloWorld</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">sayHi</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"hi, "</span> + name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再编写一个发布服务的主类 <code>Main</code>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.cxf.jaxws.JaxWsServerFactoryBean;</span><br><span class="line"><span class="keyword">import</span> org.example.services.HelloWorld;</span><br><span class="line"><span class="keyword">import</span> org.example.services.HelloWorldImpl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        HelloWorldImpl implementor = <span class="keyword">new</span> HelloWorldImpl();</span><br><span class="line">        JaxWsServerFactoryBean svrFactory = <span class="keyword">new</span> JaxWsServerFactoryBean();</span><br><span class="line">        svrFactory.setServiceClass(HelloWorld<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        svrFactory.setAddress(<span class="string">"http://localhost:9000/helloworld"</span>);</span><br><span class="line">        svrFactory.setServiceBean(implementor);</span><br><span class="line">        svrFactory.create();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行后即可访问 <code>http://localhost:9000/helloworld?wsdl</code>查看该服务，从WSDL的描述文件中也能看出 <code>HelloWorld</code> 服务提供了 <code>sayHi</code> 方法，且该方法需要一个字符串参数，返回值也为字符串。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211205162852.png" alt="image-20211205162852864"></p>
+<p>使用 <code>SoapUI</code>调用该方法示例：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211205162959.png" alt="image-20211205162958959"></p>
+<p>通过代码也可以实现客户端调用 <code>Web Service</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.example.services.HelloWorld;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.namespace.QName;</span><br><span class="line"><span class="keyword">import</span> javax.xml.ws.Service;</span><br><span class="line"><span class="keyword">import</span> javax.xml.ws.soap.SOAPBinding;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WsClient</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> QName SERVICE_NAME = <span class="keyword">new</span> QName(<span class="string">"http://services.example.org/"</span>, <span class="string">"HelloWorld"</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> QName PORT_NAME = <span class="keyword">new</span> QName(<span class="string">"http://services.example.org/"</span>, <span class="string">"HelloWorldPort"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Service service = Service.create(SERVICE_NAME);</span><br><span class="line">        String endpointAddress = <span class="string">"http://localhost:9000/helloworld"</span>;</span><br><span class="line">        service.addPort(PORT_NAME, SOAPBinding.SOAP11HTTP_BINDING, endpointAddress);</span><br><span class="line">        HelloWorld helloWorld = service.getPort(HelloWorld<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        System.out.println(helloWorld.sayHi(<span class="string">"SearchNull"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211205171838.png" alt="image-20211205171838396"></p>
+<h3 id="Spring整合CXF"><a href="#Spring整合CXF" class="headerlink" title="Spring整合CXF"></a>Spring整合CXF</h3><p>在Spring框架中可以集合 <code>Apache CXF</code>框架发布 <code>Web Service</code>服务，通过 <code>Maven</code> 或其他方式将CXF所需的Jar包导入项目中，编写 <code>Web Service</code> 接口及实现类即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.webservices;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.jws.WebMethod;</span><br><span class="line"><span class="keyword">import</span> javax.jws.WebParam;</span><br><span class="line"><span class="keyword">import</span> javax.jws.WebResult;</span><br><span class="line"><span class="keyword">import</span> javax.jws.WebService;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@WebService</span>注解标记一个webservice接口</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>    targetNamespace    指定命名空间，默认使用包名的反转.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>    serviceName    对外发布的服务名称</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>    portName    wsdl:portName，默认为服务名 + Port</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@WebService</span>(</span><br><span class="line">    targetNamespace = <span class="string">"http://services.example.org/"</span>,</span><br><span class="line">    serviceName = <span class="string">"HelloService"</span>,</span><br><span class="line">    portName = <span class="string">"HelloServicePort"</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IHelloService</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@WebResult</span>注解指定从返回值至WSDL或XML元素的映射，将此注解应用于客户端或服务端接口（SEI）方法之上。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>    name    当返回值列示在 WSDL 文件中并且在连接上的消息中找到该返回值时，指定该返回值的名称。对于 RPC 绑定，这是用于表示返回值的</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>    targetNamespace    指定返回值的 XML 命名空间。仅当操作类型为 RPC 或者操作是文档类型并且参数类型为 BARE 时才使用此参数。（字符串）</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@WebMethod</span>注解表示作为 Web Service 的方法，将此注解应用于服务端接口（SEI）的方法上。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>   operationName    指定与此方法相匹配的 wsdl:operation 的名称，默认值为Java方法的名称</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@WebParam</span>注解用于指定方法参数即Web Service方法的消息部件和XML元素的映射</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>    name    参数的名称，如果操作是RPC（远程过程调用）类型并且未指定portName属性，则表示参数的wsdl:port属性的名称</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="meta">@WebResult</span>(name = <span class="string">"helloRequest"</span>, targetNamespace = <span class="string">"http://services.example.org/"</span>)</span><br><span class="line">    <span class="meta">@WebMethod</span>(operationName=<span class="string">"sayHello"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(@WebParam(name = <span class="string">"msg"</span>)</span>String name)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Web Service</code> 接口的实现类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.webservices.impl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.jws.WebService;</span><br><span class="line"><span class="keyword">import</span> javax.jws.soap.SOAPBinding;</span><br><span class="line"><span class="keyword">import</span> javax.jws.soap.SOAPBinding.Style;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"><span class="keyword">import</span> org.exmaple.webservices.IHelloService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@WebService</span>(</span><br><span class="line">    endpointInterface = <span class="string">"org.example.services.IHelloService"</span></span><br><span class="line">)</span><br><span class="line"><span class="meta">@SOAPBinding</span>(style=Style.RPC)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IHelloServiceImpl</span> <span class="keyword">implements</span> <span class="title">IHelloService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello, "</span> + name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现 <code>Web Service</code> 的服务端后则需要对Spring项目整合CXF的一些配置，在 <code>web.xml</code> 中配置CXF框架路由。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>cxf<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.apache.cxf.transport.servlet.CXFServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>1<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>cxf<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/services/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在Spring配置（eg: application.xml）文件中加入以下配置项：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">jaxws:server</span> <span class="attr">id</span>=<span class="string">"helloService"</span> <span class="attr">serviceClass</span>=<span class="string">"org.example.services.IHelloService"</span> <span class="attr">address</span>=<span class="string">"/HelloService"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">jaxws:serviceBean</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.example.services.impl.IHelloServiceImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">jaxws:serviceBean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">jaxws:server</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后启动项目访问 <code>http://localhost:8080/services?wsdl</code> 即可查看发布的服务。</p>
+<h1 id="拓尔思漏洞分析"><a href="#拓尔思漏洞分析" class="headerlink" title="拓尔思漏洞分析"></a>拓尔思漏洞分析</h1><h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><p><a href="https://www.jianshu.com/p/4456d267258a" target="_blank" rel="noopener">Spring整合CXF 发布webservice接口服务器（普通及REST）和客户端，WSDL简单解析 - 简书</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Web-Services开发"><span class="toc-number">2.</span> <span class="toc-text">Web Services开发</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache-Axis2"><span class="toc-number">2.1.</span> <span class="toc-text">Apache Axis2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Axis2配置"><span class="toc-number">2.1.1.</span> <span class="toc-text">Axis2配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发布服务（Publish-Service）"><span class="toc-number">2.1.2.</span> <span class="toc-text">发布服务（Publish Service）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#客户端服务调用"><span class="toc-number">2.1.3.</span> <span class="toc-text">客户端服务调用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache-CXF"><span class="toc-number">2.2.</span> <span class="toc-text">Apache CXF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#发布服务"><span class="toc-number">2.2.1.</span> <span class="toc-text">发布服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring整合CXF"><span class="toc-number">2.2.2.</span> <span class="toc-text">Spring整合CXF</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#拓尔思漏洞分析"><span class="toc-number">3.</span> <span class="toc-text">拓尔思漏洞分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&text=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&is_video=false&description=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java WebService记&body=Check out this article: http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&title=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&name=Java WebService记&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/12/05/Java-WebService%E8%AE%B0/&t=Java WebService记" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

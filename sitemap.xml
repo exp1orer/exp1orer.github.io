@@ -354,13 +354,6 @@
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/HelloWorld/</loc>
-    <lastmod>2022-03-31</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://yoursite.com/tags/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
@@ -382,14 +375,7 @@
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/Nacos/</loc>
-    <lastmod>2022-03-31</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/tags/Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</loc>
+    <loc>http://yoursite.com/tags/HelloWorld/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -417,14 +403,14 @@
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/SCF%E4%BA%91%E5%87%BD%E6%95%B0/</loc>
+    <loc>http://yoursite.com/tags/Nacos/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/%E6%89%AB%E6%8F%8F%E5%99%A8/</loc>
+    <loc>http://yoursite.com/tags/Yaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -466,14 +452,21 @@
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/Thinkphp/</loc>
+    <loc>http://yoursite.com/tags/SCF%E4%BA%91%E5%87%BD%E6%95%B0/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E/</loc>
+    <loc>http://yoursite.com/tags/%E6%89%AB%E6%8F%8F%E5%99%A8/</loc>
+    <lastmod>2022-03-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -488,6 +481,27 @@
   
   <url>
     <loc>http://yoursite.com/tags/Tomcat/</loc>
+    <lastmod>2022-03-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/tags/Thinkphp/</loc>
+    <lastmod>2022-03-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/tags/%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E/</loc>
+    <lastmod>2022-03-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/tags/ysoserial/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -523,20 +537,6 @@
   
   <url>
     <loc>http://yoursite.com/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/</loc>
-    <lastmod>2022-03-31</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/</loc>
-    <lastmod>2022-03-31</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/tags/ysoserial/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -592,14 +592,14 @@
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/%E9%80%9A%E8%BE%BEOA/</loc>
+    <loc>http://yoursite.com/tags/XSS/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/XSS/</loc>
+    <loc>http://yoursite.com/tags/%E9%80%9A%E8%BE%BEOA/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
